@@ -7,7 +7,7 @@ const CONST = {
   size1 : 47,
   size2 : 54,
   size3 : 61,
-  rounds : 10
+  rounds : 30
 }
 
 
