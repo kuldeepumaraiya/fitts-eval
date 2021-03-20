@@ -1,0 +1,17 @@
+{
+  "name": "fitts-eval",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "10.0.9",
+    "next-pwa": "^5.0.6",
+    "react": "17.0.1",
+    "react-dom": "17.0.1",
+    "react-touch-position": "^2.0.2"
+  }
+}
