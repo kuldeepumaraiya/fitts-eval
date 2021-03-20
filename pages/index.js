@@ -153,8 +153,8 @@ export default function Home() {
       'touch_y' : Math.round(touch[1]),
       's_time': prevTime-time,
       'e_time': now-time,
-      'dur' : now - prevTime,
-      'dist' : Math.round(calcDist(touch,target)),
+      'duration' : now - prevTime,
+      'distance' : Math.round(calcDist(touch,target)),
       'hit' : (calcDist(touch,target)<(2*radius))
     }]))
 
