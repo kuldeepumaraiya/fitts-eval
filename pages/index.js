@@ -3,7 +3,7 @@ import Head from 'next/head'
 
 
 const CONST = {
-  min_dist : 200,
+  min_dist : 30,
   size1 : 47,
   size2 : 54,
   size3 : 61,
