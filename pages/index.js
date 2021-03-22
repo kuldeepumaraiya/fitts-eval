@@ -185,7 +185,7 @@ export default function Home() {
       
       <div id="touch-bound" className="board" onTouchStart={(e)=>{handleTouchStart(e)}}>
         {(status==='wait')?<div className="startBtn" onClick={init}>Start</div>:''}
-        {(status==='wait')?<input type="number" placeholder="target size" className="inputBox" onChange={e => setRadius(parseInt(e.target.value))}/>:''}
+        {(status==='wait')?<input type="number" placeholder="target radius" className="inputBox" onChange={e => setRadius(parseInt(e.target.value))}/>:''}
         
         <div className="canvas" style={{margin: `${pad}px`}}>
           <pre className="log-box">
