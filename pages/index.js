@@ -177,28 +177,29 @@ export default function Home() {
     if(status!=='go')return;
     
     const now = Date.now()
-    setLog(log.concat([{
-      'round': round+1,
-      'target_x' : Math.round(target[0]),
-      'target_y' : Math.round(target[1]),
-      'touch_x' : Math.round(touch[0]),
-      'touch_y' : Math.round(touch[1]),
-      's_time': prevTime-time,
-      'e_time': now-time,
-      'duration' : now - prevTime,
-      'distance' : Math.round(calcDist(touch,target)),
-      'hit' : (calcDist(touch,target)<(2*radius)),
-      'username': username,
-      'inputDistanceRadius': distanceRadius,
-      'inputTargetRadius': radius,
-      'inputAge': age,
-    }]))
+    
 
     await setRound(round+1)
 
     await setPrevTime(now)
 
-    if(calcDist(touch,target)<2*radius){
+    if(calcDist(touch,target)<radius){
+      setLog(log.concat([{
+        'round': round+1,
+        'target_x' : Math.round(target[0]),
+        'target_y' : Math.round(target[1]),
+        'touch_x' : Math.round(touch[0]),
+        'touch_y' : Math.round(touch[1]),
+        's_time': prevTime-time,
+        'e_time': now-time,
+        'duration' : now - prevTime,
+        'distance' : Math.round(calcDist(touch,target)),
+        'hit' : (calcDist(touch,target)<(radius)),
+        'username': username,
+        'inputDistanceRadius': distanceRadius,
+        'inputTargetRadius': radius,
+        'inputAge': age,
+      }]))
       const next = nextPos(target,bounds,radius,pad, distanceRadius)
       setTarget(next)
     }
@@ -225,7 +226,7 @@ export default function Home() {
           {(status==='wait')?<><input type="number" placeholder="distance radius" className="inputBox" onChange={e => setDistanceRadius(parseInt(e.target.value))}/></>:''}
           {(status==='wait')?<><input type="number" placeholder="target button radius" className="inputBox" onChange={e => setRadius(parseInt(e.target.value))}/></>:''}
           {(status==='wait')?<><input type="text" placeholder="Age" className="inputBox" onChange={e => setAge(parseInt(e.target.value))}/></>:''}
-          {(status==='wait')?<><input type="text" placeholder="User name" className="inputBox" onChange={e => setUsername(parseInt(e.target.value))}/></>:''}
+          {(status==='wait')?<><input type="text" placeholder="User name" className="inputBox" onChange={e => setUsername(e.target.value)}/></>:''}
         </div>
         <div className="canvas" style={{margin: `${pad}px`}}>
           <pre className="log-box">
