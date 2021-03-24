@@ -30,7 +30,7 @@ function convertToCSV(objArray) {
 }
 
 
-function Target({target,radius}) {
+function Target({target,radius, distanceRadius}) {
 
   return(
     <div className="target-box" style={{
@@ -58,21 +58,50 @@ function randInt(range) {
   return Math.floor(Math.random() * (max - min) + min);
 }
 
+function randFloat(range) {
+  var min = Math.ceil(range[0]);
+  var max = Math.floor(range[1]);
+  return Math.random() * (max - min) + min;
+}
 
-function nextPos(target,bounds,radius,pad){
 
-  const min_dist = CONST.min_dist;
-  const x_range = [pad+radius,bounds[0]-pad-radius]
-  const y_range = [pad+radius,bounds[1]-pad-radius]
+function nextPos(target,bounds,radius,pad, distanceRadius){
 
-  let next = [randInt(x_range),randInt(y_range)]
+  // const min_dist = CONST.min_dist;
+  // const x_range = [pad+radius,bounds[0]-pad-radius]
+  // const y_range = [pad+radius,bounds[1]-pad-radius]
 
-  while(calcDist(target,next)<min_dist){
-    next = [randInt(x_range),randInt(y_range)]
+  let next = [0,0]
+  let t = randFloat([0 ,360])
+  next = getPointOnCircumference(t,target, distanceRadius)
+
+  while(!checkInside(next[0], next[1], distanceRadius)){
+    let t = randFloat([0 ,360])
+    next = getPointOnCircumference(t,target, distanceRadius)
   }
+
+  // while(calcDist(target,next)<min_dist){
+  //   next = [randInt(x_range),randInt(y_range)]
+  // }
   return next
 }
 
+
+function getPointOnCircumference(t, center, radius){
+  let temp_x = radius * Math.cos(t) + center[0];
+  let temp_y = radius * Math.sin(t) + center[1];
+  return [temp_x, temp_y];
+}
+
+
+function checkInside(x,y, radius){
+  if(x + radius < screen.width && x - radius > 0){
+    if(y + radius < screen.height && y - radius > 0){
+      return true;
+    }
+  }  
+  return false;
+}
 
 function calcDist(from,to){
 
@@ -91,6 +120,9 @@ export default function Home() {
 
   const [pad,setPad] = useState(CONST.size1)
   const [radius,setRadius] = useState(CONST.size1)
+  const [username,setUsername] = useState("LMAO")
+  const [age,setAge] = useState(20)
+  const [distanceRadius,setDistanceRadius] = useState(CONST.size1)
   const [bounds, setBounds] = useState([0,0])
   const [target, setTarget] = useState([0,0])
   const [touch, setTouch] = useState([radius,radius])
@@ -115,7 +147,7 @@ export default function Home() {
     setTime(Date.now())
     setPrevTime(Date.now())
     
-    const next = nextPos(target,bounds,radius,pad)
+    const next = nextPos(target,bounds,radius,pad, distanceRadius)
     setTarget(next)
   }
 
@@ -155,7 +187,11 @@ export default function Home() {
       'e_time': now-time,
       'duration' : now - prevTime,
       'distance' : Math.round(calcDist(touch,target)),
-      'hit' : (calcDist(touch,target)<(2*radius))
+      'hit' : (calcDist(touch,target)<(2*radius)),
+      'username': username,
+      'inputDistanceRadius': distanceRadius,
+      'inputTargetRadius': radius,
+      'inputAge': age,
     }]))
 
     await setRound(round+1)
@@ -163,7 +199,7 @@ export default function Home() {
     await setPrevTime(now)
 
     if(calcDist(touch,target)<2*radius){
-      const next = nextPos(target,bounds,radius,pad)
+      const next = nextPos(target,bounds,radius,pad, distanceRadius)
       setTarget(next)
     }
     
@@ -183,16 +219,20 @@ export default function Home() {
         <meta name="apple-mobile-web-app-capable" content="yes"/>
       </Head>
       
-      <div id="touch-bound" className="board" onTouchStart={(e)=>{handleTouchStart(e)}}>
-        {(status==='wait')?<div className="startBtn" onClick={init}>Start</div>:''}
-        {(status==='wait')?<input type="number" placeholder="target radius" className="inputBox" onChange={e => setRadius(parseInt(e.target.value))}/>:''}
-        
+      <div id="touch-bound" className="board" onTouchEnd={(e)=>{handleTouchStart(e)}}>
+        <div className="menuItemContainer">
+          {(status==='wait')?<div className="startBtn" onClick={init}>Start</div>:''}
+          {(status==='wait')?<><input type="number" placeholder="distance radius" className="inputBox" onChange={e => setDistanceRadius(parseInt(e.target.value))}/></>:''}
+          {(status==='wait')?<><input type="number" placeholder="target button radius" className="inputBox" onChange={e => setRadius(parseInt(e.target.value))}/></>:''}
+          {(status==='wait')?<><input type="text" placeholder="Age" className="inputBox" onChange={e => setAge(parseInt(e.target.value))}/></>:''}
+          {(status==='wait')?<><input type="text" placeholder="User name" className="inputBox" onChange={e => setUsername(parseInt(e.target.value))}/></>:''}
+        </div>
         <div className="canvas" style={{margin: `${pad}px`}}>
           <pre className="log-box">
             {JSON.stringify(log.map(x=>[x.round,x.dist,x.e_time-x.s_time]),null,1)}
           </pre>
         </div>
-        {(status==='go')?<Target radius={radius} target={target}/>:''}
+        {(status==='go')?<Target radius={radius} target={target} distanceRadius={distanceRadius} />:''}
         {(status==='end')?<div className="startBtn" onClick={()=>saveCsv(log)}>Download</div>:''}
       </div>
     </>
