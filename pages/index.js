@@ -155,7 +155,7 @@ export default function Home() {
       'e_time': now-time,
       'duration' : now - prevTime,
       'distance' : Math.round(calcDist(touch,target)),
-      'hit' : (calcDist(touch,target)<(2*radius))
+      'hit' : (calcDist(touch,target)<(radius))
     }]))
 
     await setRound(round+1)
