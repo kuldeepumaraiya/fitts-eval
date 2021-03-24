@@ -75,7 +75,7 @@ function nextPos(target,bounds,radius,pad, distanceRadius){
   let t = randFloat([0 ,360])
   next = getPointOnCircumference(t,target, distanceRadius)
 
-  while(!checkInside(next[0], next[1], distanceRadius)){
+  while(!checkInside(next[0], next[1], distanceRadius, pad)){
     let t = randFloat([0 ,360])
     next = getPointOnCircumference(t,target, distanceRadius)
   }
@@ -94,9 +94,9 @@ function getPointOnCircumference(t, center, radius){
 }
 
 
-function checkInside(x,y, radius){
-  if(x + radius < screen.width && x - radius > 0){
-    if(y + radius < screen.height && y - radius > 0){
+function checkInside(x,y, radius, pad){
+  if(x + radius + pad < screen.width && x - radius - pad > 0){
+    if(y + radius + pad< screen.height && y - radius - pad> 0){
       return true;
     }
   }  
