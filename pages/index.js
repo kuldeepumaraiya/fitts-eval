@@ -36,8 +36,8 @@ function Target({target,radius}) {
     <div className="target-box" style={{
        left:`${target[0]-2*radius}px`,
       top:`${target[1]-2*radius}px`,
-      width:`${0*radius}px`,
-      height:`${0*radius}px`
+      width:`${4*radius}px`,
+      height:`${4*radius}px`
     }}>
       <div className="target-core" style={{
         left:`${radius}px`,
