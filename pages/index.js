@@ -34,7 +34,7 @@ function Target({target,radius}) {
 
   return(
     <div className="target-box" style={{
-       left:`${target[0]-2*radius}px`,
+      left:`${target[0]-2*radius}px`,
       top:`${target[1]-2*radius}px`,
       width:`${4*radius}px`,
       height:`${4*radius}px`
@@ -162,7 +162,7 @@ export default function Home() {
 
     await setPrevTime(now)
 
-    if(calcDist(touch,target)<2*radius){
+    if(calcDist(touch,target)<radius){
       const next = nextPos(target,bounds,radius,pad)
       setTarget(next)
     }
