@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
+import UIfx from 'uifx'
+import mp3FIle from '.public/Fart Toot.mp3'
 
-
+const beep = new UIfx({assest: mp3File})
 const CONST = {
   min_dist : 30,
   size1 : 47,
@@ -162,11 +164,7 @@ export default function Home() {
     await setPrevTime(now)
 
     if(calcDist(touch,target)>radius){
-      body{
-        background-color: green,
-        delay(50)
-        background-color: white
-      };
+     beep.play;
     }
 
         const next = nextPos(target,bounds,radius,pad) 
