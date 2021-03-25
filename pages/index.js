@@ -168,7 +168,7 @@ export default function Home() {
       setStatus('end')
     }
   if(calcDist(touch,target)<(radius)){
-	document.getElementById("touch-bound").style.backgroundColor = "red";
+	document.getElementById("touch-bound").style.backgroundColor = "white";
 }else{
 	document.getElementById("touch-bound").style.backgroundColor = "red";
 }
