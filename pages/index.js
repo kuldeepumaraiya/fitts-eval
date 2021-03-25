@@ -161,17 +161,16 @@ export default function Home() {
 
     await setPrevTime(now)
 
-      document.body.style.backgroundColor='red'
-
-    setTimeout(async()=>{
-    document.body.style.backgroundColor='white'},1000)
-
         const next = nextPos(target,bounds,radius,pad) 
         setTarget(next) 
 
     if(log.length>=CONST.rounds){
       setStatus('end')
     }
+    document.getElementById(touch-bound).style.backgroundColor="red";
+  setTimeout(()=>{
+  document.getElementById("touch-bound").style.backgroundColor="white";
+  }300);
       
   },[touch])
 
