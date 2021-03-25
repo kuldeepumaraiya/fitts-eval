@@ -168,10 +168,10 @@ export default function Home() {
       setStatus('end')
     }
 
-    document.getElementById(touch-bound).style.backgroundColor="red";
-  setTimeout(()=>{
-  document.getElementById("touch-bound").style.backgroundColor="white";
-  },300);
+   document.getElementById("touch-bound").style.backgroundColor = "red";
+    setTimeout(()=>{
+      document.getElementById("touch-bound").style.backgroundColor = "white";
+    }, 300);
       
   },[touch])
 
