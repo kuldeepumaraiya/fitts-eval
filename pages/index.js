@@ -161,7 +161,7 @@ export default function Home() {
 
     await setPrevTime(now)
 
-    if(calcDist(touch,target)<radius){
+    if(calcDist(touch,target)<radius || calcDist(touch,target)>=radius){
       const next = nextPos(target,bounds,radius,pad)
       setTarget(next)
     
