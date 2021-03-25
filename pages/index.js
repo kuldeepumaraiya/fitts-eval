@@ -167,9 +167,7 @@ export default function Home() {
     if(log.length>=CONST.rounds){
       setStatus('end')
     }
-  if(calcDist(touch,target)<(radius)){
-	document.getElementById("touch-bound").style.backgroundColor = "white";
-}else{
+  if(calcDist(touch,target)===-1){
 	document.getElementById("touch-bound").style.backgroundColor = "red";
 }
 setTimeout(()=>{
