@@ -174,7 +174,7 @@ export default function Home() {
 }
 setTimeout(()=>{
       document.getElementById("touch-bound").style.backgroundColor = "white";
-    }, 300);
+    }, 100);
   } 
   },[touch])
 
