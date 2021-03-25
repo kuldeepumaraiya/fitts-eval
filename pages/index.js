@@ -145,13 +145,7 @@ export default function Home() {
     if(status!=='go')return;
     
     const now = Date.now()
-
-    await setRound(round+1)
-
-    await setPrevTime(now)
-
-    if(calcDist(touch,target)<radius){
-      setLog(log.concat([{
+        setLog(log.concat([{
       'round': round+1,
       'target_x' : Math.round(target[0]),
       'target_y' : Math.round(target[1]),
@@ -163,11 +157,17 @@ export default function Home() {
       'distance' : Math.round(calcDist(touch,target)),
       'hit' : (calcDist(touch,target)<(radius))
       }]))
+    await setRound(round+1)
+
+    await setPrevTime(now)
+
+    if(calcDist(touch,target)<radius){
+    
       const next = nextPos(target,bounds,radius,pad)
       setTarget(next)
     }
     
-    if(log.filter(x=>(x.hit)).length>=CONST.rounds){
+    if(log.filter(x=>(x.hit)).length=CONST.rounds){
       setStatus('end')
     }
       
