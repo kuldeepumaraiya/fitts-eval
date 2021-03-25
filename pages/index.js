@@ -161,8 +161,13 @@ export default function Home() {
 
     await setPrevTime(now)
 
-    /*if(calcDist(touch,target)<radius){
-    }*/
+    if(calcDist(touch,target)>radius){
+      body{
+        background-color: green,
+        delay(50)
+        background-color: white
+      };
+    }
 
         const next = nextPos(target,bounds,radius,pad) 
         setTarget(next) 
