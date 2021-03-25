@@ -168,14 +168,14 @@ export default function Home() {
       setStatus('end')
     }
   if(calcDist(touch,target)<(radius)){
-	document.getElementById("touch-bound").style.backgroundColor = "green";
+	document.getElementById("touch-bound").style.backgroundColor = "white";
 }else{
 	document.getElementById("touch-bound").style.backgroundColor = "red";
 }
 
 setTimeout(()=>{
       document.getElementById("touch-bound").style.backgroundColor = "white";
-    }, 300);
+    }, 50);
   },[touch])
 
 
