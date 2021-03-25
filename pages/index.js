@@ -167,13 +167,15 @@ export default function Home() {
     if(log.length>=CONST.rounds){
       setStatus('end')
     }
-  if(calcDist(touch,target)===-1){
+  if(calcDist(touch,target)<(radius)){
+	document.getElementById("touch-bound").style.backgroundColor = "green";
+}else{
 	document.getElementById("touch-bound").style.backgroundColor = "red";
 }
+
 setTimeout(()=>{
       document.getElementById("touch-bound").style.backgroundColor = "white";
-    }, 100);
-  } 
+    }, 300);
   },[touch])
 
 
