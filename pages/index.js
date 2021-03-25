@@ -163,7 +163,7 @@ export default function Home() {
 
       document.body.style.backgroundColor='red'
 
-    setTimeOut(async()=>{
+    setTimeout(async()=>{
     document.body.style.backgroundColor='white'},1000)
 
         const next = nextPos(target,bounds,radius,pad) 
