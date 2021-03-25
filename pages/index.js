@@ -166,6 +166,12 @@ export default function Home() {
       setTarget(next)
     
     }
+    else
+    {
+      const next = nextPos(target,bounds,radius,pad)
+      setTarget(next)
+    
+    }
       
     if(log.filter(x=>(x.hit)).length>=CONST.rounds){
       setStatus('end')
