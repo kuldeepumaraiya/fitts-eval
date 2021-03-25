@@ -164,9 +164,9 @@ export default function Home() {
     if(calcDist(touch,target)<radius){
     
       const next = nextPos(target,bounds,radius,pad)
-      setTarget(next)
-    }
     
+    }
+      setTarget(next)
     if(log.filter(x=>(x.hit)).length>=CONST.rounds){
       setStatus('end')
     }
