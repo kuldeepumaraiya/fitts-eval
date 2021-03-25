@@ -139,6 +139,7 @@ export default function Home() {
 
     link.click();
   }
+  
 
   useEffect(async()=>{
     if(status!=='go')return;
@@ -160,6 +161,10 @@ export default function Home() {
 
     await setPrevTime(now)
 
+      document.body.style.backgroundColor='red'
+
+    setTimeOut(async()=>{
+    document.body.style.backgroundColor='white'},1000)
 
         const next = nextPos(target,bounds,radius,pad) 
         setTarget(next) 
