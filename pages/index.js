@@ -167,10 +167,11 @@ export default function Home() {
     if(log.length>=CONST.rounds){
       setStatus('end')
     }
+
     document.getElementById(touch-bound).style.backgroundColor="red";
   setTimeout(()=>{
   document.getElementById("touch-bound").style.backgroundColor="white";
-  }300);
+  },300);
       
   },[touch])
 
