@@ -167,7 +167,7 @@ export default function Home() {
       setTarget(next)
     }
     
-    if(log.filter(x=>(x.hit)).length==CONST.rounds){
+    if(log.filter(x=>(x.hit)).length>=CONST.rounds){
       setStatus('end')
     }
       
