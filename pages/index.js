@@ -144,8 +144,8 @@ export default function Home() {
   // );
 
   const startSound = new Howl({ src : 'beep.mp3'})
-  const errorSound = new Howl({ src : 'errorBeep.mp3'})
-  const rewardSound = new Howl({ src : 'rewardBeep.mp3'})
+  const errorSound = new Howl({ src : 'errorbeep.mp3'})
+  const rewardSound = new Howl({ src : 'rewardbeep.mp3'})
   Howler.volume(100);
 
   const [pad,setPad] = useState(CONST.size1)
