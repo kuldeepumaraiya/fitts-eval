@@ -8,10 +8,15 @@
     "start": "next start"
   },
   "dependencies": {
-    "next": "10.0.9",
+    "howler": "^2.2.1",
+    "next": "^10.2.0",
     "next-pwa": "^5.0.6",
     "react": "17.0.1",
     "react-dom": "17.0.1",
-    "react-touch-position": "^2.0.2"
+    "react-touch-position": "^2.0.2",
+    "use-sound": "^3.0.1"
+  },
+  "devDependencies": {
+    "file-loader": "^6.2.0"
   }
 }

@@ -1,5 +1,11 @@
-import { useState, useEffect } from 'react'
-import Head from 'next/head'
+import { useState, useEffect } from 'react';
+import {Howl, Howler} from 'howler';
+import Head from 'next/head';
+// import beep from '../public/audio/beep.mp3';
+// import errorBeep from '../public/audio/errorBeep.mp3';
+// import rewardBeep from '../public/audio/rewardBeep.mp3';
+import useSound from 'use-sound';
+
 
 
 const CONST = {
@@ -7,10 +13,10 @@ const CONST = {
   size1 : 47,
   size2 : 54,
   size3 : 61,
-  rounds : 30
+  rounds : 15,
+  distanceLowerBound: 50,
+  distanceUpperBound: 500,
 }
-
-
 
 
 function convertToCSV(objArray) {
@@ -65,19 +71,25 @@ function randFloat(range) {
 }
 
 
-function nextPos(target,bounds,radius,pad, distanceRadius){
+function nextPos(target,bounds,radius,pad, distanceRadius, mode){
 
   // const min_dist = CONST.min_dist;
   // const x_range = [pad+radius,bounds[0]-pad-radius]
   // const y_range = [pad+radius,bounds[1]-pad-radius]
-
+  if(mode == "FC"){
+    distanceRadius = randFloat([CONST.distanceLowerBound, CONST.distanceUpperBound]); 
+  }
   let next = [0,0]
   let t = randFloat([0 ,360])
   next = getPointOnCircumference(t,target, distanceRadius)
 
   while(!checkInside(next[0], next[1], distanceRadius, pad)){
+    if(mode == "FC"){
+      distanceRadius = randFloat([CONST.distanceLowerBound, CONST.distanceUpperBound]); 
+    }
     let t = randFloat([0 ,360])
     next = getPointOnCircumference(t,target, distanceRadius)
+    
   }
 
   // while(calcDist(target,next)<min_dist){
@@ -117,6 +129,24 @@ function calcDist(from,to){
 }
 
 export default function Home() {
+  
+  // const beep = useSound(
+  //   '../public/audio/beep.mp3',
+  //   { volume: 0.25 }
+  // );
+  // const errorBeep = useSound(
+  //   '../public/audio/errorBeep.mp3',
+  //   { volume: 1 }
+  // );
+  // const rewardBeep = useSound(
+  //   '../public/audio/rewardBeep.mp3',
+  //   { volume: 1 }
+  // );
+
+  const startSound = new Howl({ src : 'beep.mp3'})
+  const errorSound = new Howl({ src : 'errorBeep.mp3'})
+  const rewardSound = new Howl({ src : 'rewardBeep.mp3'})
+  Howler.volume(100);
 
   const [pad,setPad] = useState(CONST.size1)
   const [radius,setRadius] = useState(CONST.size1)
@@ -132,8 +162,9 @@ export default function Home() {
   const [time, setTime] = useState(0)
   const [prevTime,setPrevTime] = useState(0)
 
-  const [status,setStatus] = useState('wait')
+  const [status,setStatus] = useState('frontPage')
   const [log,setLog] = useState([])
+  const [mode, setMode] = useState("MT")
 
 
   function handleTouchStart(event){
@@ -147,16 +178,20 @@ export default function Home() {
     setTime(Date.now())
     setPrevTime(Date.now())
     
-    const next = nextPos(target,bounds,radius,pad, distanceRadius)
+    const next = nextPos(target,bounds,radius,pad, distanceRadius, mode)
     setTarget(next)
+    startSound.play()
   }
 
   useEffect(()=>{
+    
     setBounds([
       parseInt(document.getElementById("touch-bound").getBoundingClientRect().width),
       parseInt(document.getElementById("touch-bound").getBoundingClientRect().height)
     ])
     setTarget([radius+pad,radius+pad])
+
+    
   },[])
 
 
@@ -164,10 +199,11 @@ export default function Home() {
     let csvStr = convertToCSV(data)
     let csvContent = "data:text/csv;charset=utf-8,"+csvStr
     var encodedUri = encodeURI(csvContent);
-    
+    var name = mode + "_" + username +"_" + age + "_" + radius;
+
     var link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `fitts_${(new Date()).toISOString()}.csv`);
+    link.setAttribute("download", name + ".csv");
     document.body.appendChild(link); 
 
     link.click();
@@ -184,35 +220,66 @@ export default function Home() {
     await setPrevTime(now)
 
     if(calcDist(touch,target)<radius){
-      setLog(log.concat([{
-        'round': round+1,
-        'target_x' : Math.round(target[0]),
-        'target_y' : Math.round(target[1]),
-        'touch_x' : Math.round(touch[0]),
-        'touch_y' : Math.round(touch[1]),
-        's_time': prevTime-time,
-        'e_time': now-time,
-        'duration' : now - prevTime,
-        'distance' : Math.round(calcDist(touch,target)),
-        'hit' : (calcDist(touch,target)<(radius)),
-        'username': username,
-        'inputDistanceRadius': distanceRadius,
-        'inputTargetRadius': radius,
-        'inputAge': age,
-      }]))
-      const next = nextPos(target,bounds,radius,pad, distanceRadius)
+      if(mode == "FC"){
+        setLog(log.concat([{
+          'round': round+1,
+          'target_x' : Math.round(target[0]),
+          'target_y' : Math.round(target[1]),
+          'touch_x' : Math.round(touch[0]),
+          'touch_y' : Math.round(touch[1]),
+          'distance' : Math.round(calcDist(touch,target)),
+          'hit' : (calcDist(touch,target)<(radius)),
+          'username': username,
+          'inputTargetRadius': radius,
+          'inputAge': age,
+        }]))
+      }else{
+        setLog(log.concat([{
+          'round': round+1,
+          'target_x' : Math.round(target[0]),
+          'target_y' : Math.round(target[1]),
+          'touch_x' : Math.round(touch[0]),
+          'touch_y' : Math.round(touch[1]),
+          's_time': prevTime-time,
+          'e_time': now-time,
+          'duration' : now - prevTime,
+          'distance' : Math.round(calcDist(touch,target)),
+          'hit' : (calcDist(touch,target)<(radius)),
+          'username': username,
+          'inputDistanceRadius': distanceRadius,
+          'inputTargetRadius': radius,
+          'inputAge': age,
+        }]))
+      }
+      
+      const next = nextPos(target,bounds,radius,pad, distanceRadius, mode)
       setTarget(next)
     }
     
     if(log.filter(x=>(x.hit)).length>=CONST.rounds){
       setStatus('end')
     }
+
+
+    
+    if(calcDist(touch,target)<(radius)){
+      document.getElementById("touch-bound").style.backgroundColor = "green";
+      rewardSound.play();
+    }else{
+      document.getElementById("touch-bound").style.backgroundColor = "red";
+      errorSound.play();
+    }
+    
+    setTimeout(()=>{
+      document.getElementById("touch-bound").style.backgroundColor = "white";
+    }, 300);
       
   },[touch])
 
 
   return (
     <>
+    
       <Head>
         <title>Fitts Eval</title>
         <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover'/>
@@ -221,12 +288,23 @@ export default function Home() {
       </Head>
       
       <div id="touch-bound" className="board" onTouchEnd={(e)=>{handleTouchStart(e)}}>
+        <div className="menuItemContainer front-page"> 
+          {(status==='frontPage') ? <div className="startBtn wider" onClick={() => {setMode("MT"); setStatus("wait1");}}>main task</div>:''}
+          {(status==='frontPage') ? <div className="startBtn wider" onClick={() => {setMode("FC"); setStatus("wait2");}}>finger callibration</div>:''}
+        </div>
+          
         <div className="menuItemContainer">
-          {(status==='wait')?<div className="startBtn" onClick={init}>Start</div>:''}
-          {(status==='wait')?<><input type="number" placeholder="distance radius" className="inputBox" onChange={e => setDistanceRadius(parseInt(e.target.value))}/></>:''}
-          {(status==='wait')?<><input type="number" placeholder="target button radius" className="inputBox" onChange={e => setRadius(parseInt(e.target.value))}/></>:''}
-          {(status==='wait')?<><input type="text" placeholder="Age" className="inputBox" onChange={e => setAge(parseInt(e.target.value))}/></>:''}
-          {(status==='wait')?<><input type="text" placeholder="User name" className="inputBox" onChange={e => setUsername(e.target.value)}/></>:''}
+          {(status==='wait1')?<div className="startBtn" onClick={init}>Start</div>:''}
+          {(status==='wait1')?<><input type="number" placeholder="distance radius" className="inputBox" onChange={e => setDistanceRadius(parseInt(e.target.value))}/></>:''}
+          {(status==='wait1')?<><input type="number" placeholder="target button radius" className="inputBox" onChange={e => setRadius(parseInt(e.target.value))}/></>:''}
+          {(status==='wait1')?<><input type="text" placeholder="Age" className="inputBox" onChange={e => setAge(parseInt(e.target.value))}/></>:''}
+          {(status==='wait1')?<><input type="text" placeholder="User name" className="inputBox" onChange={e => setUsername(e.target.value)}/></>:''}
+        </div>
+        <div className="menuItemContainer">
+          {(status==='wait2')?<div className="startBtn" onClick={init}>Start</div>:''}
+          {(status==='wait2')?<><input type="number" placeholder="target button radius" className="inputBox" onChange={e => setRadius(parseInt(e.target.value))}/></>:''}
+          {(status==='wait2')?<><input type="text" placeholder="Age" className="inputBox" onChange={e => setAge(parseInt(e.target.value))}/></>:''}
+          {(status==='wait2')?<><input type="text" placeholder="User name" className="inputBox" onChange={e => setUsername(e.target.value)}/></>:''}
         </div>
         <div className="canvas" style={{margin: `${pad}px`}}>
           <pre className="log-box">
@@ -234,7 +312,7 @@ export default function Home() {
           </pre>
         </div>
         {(status==='go')?<Target radius={radius} target={target} distanceRadius={distanceRadius} />:''}
-        {(status==='end')?<div className="startBtn" onClick={()=>saveCsv(log)}>Download</div>:''}
+        {(status==='end')?<div className="menuItemContainer  front-page"><div className="startBtn" onClick={()=>saveCsv(log)}>Download</div></div>:''}
       </div>
     </>
   )
