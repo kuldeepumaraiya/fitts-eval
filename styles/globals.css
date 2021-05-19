@@ -19,7 +19,7 @@ html {
 .canvas {
   display: block;
   background-color: orange;
-  position: absolute;
+  position: fixed;
   bottom: 0;
   top: 0;
   left: 0;

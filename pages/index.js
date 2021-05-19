@@ -19,8 +19,8 @@ const CONST = {
   size2 : 60,
   size3 : 61,
   rounds : 15,
-  distanceLowerBound: 50,
-  distanceUpperBound: 500,
+  distanceLowerBound: 48,
+  distanceUpperBound: 384,
 }
 
 
@@ -137,7 +137,7 @@ function calcDist(from,to){
 export default function Home() {
   
   const startSound = new Howl({ src : 'beep.mp3'})
-  const errorSound = new Howl({ src : 'errorbeep.mp3'})
+  const errorSound = new Howl({ src : 'errorbeep.mp3', volume: 0.1})
   const rewardSound = new Howl({ src : 'rewardbeep.mp3'})
   Howler.volume(100);
 
@@ -264,6 +264,7 @@ export default function Home() {
           const next = nextPos(target,bounds,radius,pad, distanceRadius, mode)
           setTarget(next)
           document.getElementById("target1").style.display = "block";
+          startSound.play()
         }, 1000);
   
       }else if(mode === 'MT'){ // For MT
@@ -524,7 +525,7 @@ export default function Home() {
         </div>
         {(status==='go')?
         <>
-          <span className="score-board">{score}/{CONST.rounds}</span>
+          <span className="score-board">{score}/{log.length}</span>
           {mode === 'FC' ?
             <Target radius={radius} target={target} distanceRadius={distanceRadius} name="target1"/>
           :
