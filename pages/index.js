@@ -36,24 +36,43 @@ function convertToCSV(objArray) {
 }
 
 
-function Target({target,radius, distanceRadius}) {
-
-  return(
-    <div className="target-box" style={{
-      left:`${target[0]-2*radius}px`,
-      top:`${target[1]-2*radius}px`,
-      width:`${4*radius}px`,
-      height:`${4*radius}px`
-    }}>
-      <div className="target-core" style={{
-        left:`${radius}px`,
-        top:`${radius}px`,
-        width:`${2*radius}px`,
-        height:`${2*radius}px`
+function Target({target,radius, distanceRadius, mode}) {
+  if(mode === "FC"){
+    return(
+      <div className="target-box" style={{
+        left:`${target[0]-2*radius}px`,
+        top:`${target[1]-2*radius}px`,
+        width:`${4*radius}px`,
+        height:`${4*radius}px`
       }}>
+        <div className="target-core" style={{
+          left:`${radius}px`,
+          top:`${radius}px`,
+          width:`${2*radius}px`,
+          height:`${2*radius}px`
+        }}>
+        </div>
       </div>
-    </div>
-  )
+    )
+  }else{
+    return(
+      <div className="target-box" style={{
+        left:`${target[0]-2*radius}px`,
+        top:`${target[1]-2*radius}px`,
+        width:`${4*radius}px`,
+        height:`${4*radius}px`
+      }}>
+        <div className="target-core" style={{
+          left:`${radius}px`,
+          top:`${radius}px`,
+          width:`${2*radius}px`,
+          height:`${2*radius}px`
+        }}>
+        </div>
+      </div>
+    )
+  }
+  
 }
 
 
@@ -130,19 +149,6 @@ function calcDist(from,to){
 
 export default function Home() {
   
-  // const beep = useSound(
-  //   '../public/audio/beep.mp3',
-  //   { volume: 0.25 }
-  // );
-  // const errorBeep = useSound(
-  //   '../public/audio/errorBeep.mp3',
-  //   { volume: 1 }
-  // );
-  // const rewardBeep = useSound(
-  //   '../public/audio/rewardBeep.mp3',
-  //   { volume: 1 }
-  // );
-
   const startSound = new Howl({ src : 'beep.mp3'})
   const errorSound = new Howl({ src : 'errorbeep.mp3'})
   const rewardSound = new Howl({ src : 'rewardbeep.mp3'})
@@ -157,6 +163,7 @@ export default function Home() {
   const [target, setTarget] = useState([0,0])
   const [touch, setTouch] = useState([radius,radius])
   const [next, setNext] = useState([radius,radius])
+  const [score, setScore] = useState(0)
   
   const [round,setRound] = useState(0)
   const [time, setTime] = useState(0)
@@ -219,50 +226,52 @@ export default function Home() {
 
     await setPrevTime(now)
 
-    if(calcDist(touch,target)<radius){
-      if(mode == "FC"){
-        setLog(log.concat([{
-          'round': round+1,
-          'target_x' : Math.round(target[0]),
-          'target_y' : Math.round(target[1]),
-          'touch_x' : Math.round(touch[0]),
-          'touch_y' : Math.round(touch[1]),
-          'distance' : Math.round(calcDist(touch,target)),
-          'hit' : (calcDist(touch,target)<(radius)),
-          'username': username,
-          'inputTargetRadius': radius,
-          'inputAge': age,
-        }]))
-      }else{
-        setLog(log.concat([{
-          'round': round+1,
-          'target_x' : Math.round(target[0]),
-          'target_y' : Math.round(target[1]),
-          'touch_x' : Math.round(touch[0]),
-          'touch_y' : Math.round(touch[1]),
-          's_time': prevTime-time,
-          'e_time': now-time,
-          'duration' : now - prevTime,
-          'distance' : Math.round(calcDist(touch,target)),
-          'hit' : (calcDist(touch,target)<(radius)),
-          'username': username,
-          'inputDistanceRadius': distanceRadius,
-          'inputTargetRadius': radius,
-          'inputAge': age,
-        }]))
-      }
-      
-      const next = nextPos(target,bounds,radius,pad, distanceRadius, mode)
-      setTarget(next)
+    let calculatedDist = calcDist(touch,target);
+
+    if(mode == "FC"){
+      setLog(log.concat([{
+        'round': round+1,
+        'target_x' : Math.round(target[0]),
+        'target_y' : Math.round(target[1]),
+        'touch_x' : Math.round(touch[0]),
+        'touch_y' : Math.round(touch[1]),
+        'distance' : Math.round(calculatedDist),
+        'hit' : (calculatedDist<(radius)),
+        'username': username,
+        'inputTargetRadius': radius,
+        'inputAge': age,
+      }]))
+    }else{
+      setLog(log.concat([{
+        'round': round+1,
+        'target_x' : Math.round(target[0]),
+        'target_y' : Math.round(target[1]),
+        'touch_x' : Math.round(touch[0]),
+        'touch_y' : Math.round(touch[1]),
+        's_time': prevTime-time,
+        'e_time': now-time,
+        'duration' : now - prevTime,
+        'distance' : Math.round(calculatedDist),
+        'hit' : (calculatedDist<(radius)),
+        'username': username,
+        'inputDistanceRadius': distanceRadius,
+        'inputTargetRadius': radius,
+        'inputAge': age,
+      }]))
     }
     
-    if(log.filter(x=>(x.hit)).length>=CONST.rounds){
+    const next = nextPos(target,bounds,radius,pad, distanceRadius, mode)
+    setTarget(next)
+    
+    
+    if(log.length>=CONST.rounds){
       setStatus('end')
     }
 
 
     
-    if(calcDist(touch,target)<(radius)){
+    if(calculatedDist<(radius)){
+      setScore(score+1);
       document.getElementById("touch-bound").style.backgroundColor = "green";
       rewardSound.play();
     }else{
@@ -275,6 +284,8 @@ export default function Home() {
     }, 300);
       
   },[touch])
+
+
 
 
   return (
@@ -311,8 +322,20 @@ export default function Home() {
             {JSON.stringify(log.map(x=>[x.round,x.dist,x.e_time-x.s_time]),null,1)}
           </pre>
         </div>
-        {(status==='go')?<Target radius={radius} target={target} distanceRadius={distanceRadius} />:''}
-        {(status==='end')?<div className="menuItemContainer  front-page"><div className="startBtn" onClick={()=>saveCsv(log)}>Download</div></div>:''}
+        {(status==='go')?<Target radius={radius} target={target} distanceRadius={distanceRadius} mode={mode}/>:''}
+        {(status==='end')
+        ?
+        <div className="menuItemContainer  front-page">
+          <div className="end-score-wrapper">
+            <span>your score</span>
+            <span>{score}/{CONST.rounds}</span>
+          </div>
+          <div className="end-buttons-wrapper">
+            <div className="startBtn" onClick={()=>saveCsv(log)}>download</div>
+            <div className="startBtn" onClick={()=>window.location.reload()}>cancel</div>
+          </div>
+        </div>
+        :''}
       </div>
     </>
   )

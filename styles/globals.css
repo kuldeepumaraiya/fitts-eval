@@ -87,10 +87,35 @@ html {
 }
 
 .front-page {
-  height: 20vh;
-  bottom: 40vh;
+  height: 30vh;
+  bottom: 35vh;
   width: 45vw;
 }
 .wider {
   width: 45vw;
+}
+
+.end-buttons-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 80vw;
+  position: fixed;
+  bottom: 15vh;
+}
+
+.end-score-wrapper {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 48px;
+  line-height: 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  width: 80vw;
+  height: 30vh;
+  position: fixed;
+  top: 25vh;
 }
