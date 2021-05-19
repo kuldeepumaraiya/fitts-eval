@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import {Howl, Howler} from 'howler';
 import Head from 'next/head';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormControl from '@material-ui/core/FormControl';
+import FormLabel from '@material-ui/core/FormLabel';
 // import beep from '../public/audio/beep.mp3';
 // import errorBeep from '../public/audio/errorBeep.mp3';
 // import rewardBeep from '../public/audio/rewardBeep.mp3';
@@ -155,12 +160,12 @@ export default function Home() {
   const [status,setStatus] = useState('frontPage')
   const [log,setLog] = useState([])
   const [mode, setMode] = useState("MT")
+  const [radioType, setRadioType] = useState("NT")
 
-
-  function handleTouchStart(event){
-    console.log(event.changedTouches[0].clientX,event.changedTouches[0].clientY)
+  function handleTouchEnd(event){
     setTouch([event.changedTouches[0].clientX,event.changedTouches[0].clientY])
   }
+
   
 
   function init(){
@@ -200,7 +205,7 @@ export default function Home() {
     if(mode === "MT"){
       name  = name + "_" + distanceRadius;
     }
-
+    name = name + "_" + radioType
     var link = document.createElement("a");
     link.setAttribute("href", encodedUri);
     link.setAttribute("download", name + ".csv");
@@ -213,9 +218,9 @@ export default function Home() {
     if(status!=='go')return;
     try {
       if(mode === 'FC'){
+        if(document.getElementById("target1").style.display === 'none') return;
         const now = Date.now()
         
-  
         await setRound(round+1)
   
         await setPrevTime(now)
@@ -236,11 +241,10 @@ export default function Home() {
         }]))
         
           
-        const next = nextPos(target,bounds,radius,pad, distanceRadius, mode)
-        setTarget(next)
+        document.getElementById("target1").style.display = "none";
         
         
-        if(log.length>=CONST.rounds){
+        if(log.length>=CONST.rounds-1){
           setStatus('end')
         }
   
@@ -257,9 +261,12 @@ export default function Home() {
         
         setTimeout(()=>{
           document.getElementById("touch-bound").style.backgroundColor = "white";
-        }, 300);
+          const next = nextPos(target,bounds,radius,pad, distanceRadius, mode)
+          setTarget(next)
+          document.getElementById("target1").style.display = "block";
+        }, 1000);
   
-      }else{ // For MT
+      }else if(mode === 'MT'){ // For MT
         if(status!=='go')return;
   
         if(( document.getElementById("target2").style.display === '' ||
@@ -289,7 +296,7 @@ export default function Home() {
         
           await setPrevTime(now)
           
-          if(log.length>=CONST.rounds){
+          if(log.length>=CONST.rounds-1){
             setStatus('end')
           }
   
@@ -346,7 +353,7 @@ export default function Home() {
         
           await setPrevTime(now)
           
-          if(log.length>=CONST.rounds){
+          if(log.length>=CONST.rounds-1){
             setStatus('end')
           }
   
@@ -376,10 +383,10 @@ export default function Home() {
   
         }
         
-        else if(( document.getElementById("target1").style.display === '' ||
+        else if((( document.getElementById("target1").style.display === '' ||
         document.getElementById("target1").style.display === 'block') && 
         ( document.getElementById("target2").style.display === '' ||
-        document.getElementById("target2").style.display === 'block')){ // First target clicked
+        document.getElementById("target2").style.display === 'block'))){ // First target clicked
           
   
           let calculatedDist1 = calcDist(touch,target);
@@ -392,6 +399,7 @@ export default function Home() {
     
             document.getElementById("target1").style.display = 'none';
             startSound.play()
+          
           }else if(calculatedDist2 < radius){
   
             const now = Date.now()
@@ -400,17 +408,24 @@ export default function Home() {
     
             document.getElementById("target2").style.display = 'none';
             startSound.play()
+          
           }
-  
           
         }
   
       }
+      
+      setTchStart(false);
+
     } catch (error) {
       console.log("An error occured")
     }
     
   },[touch])
+
+  function handleRadioGroup(e){
+    setRadioType(e.target.value)
+  }
 
   return (
     <>
@@ -422,7 +437,7 @@ export default function Home() {
         <meta name="apple-mobile-web-app-capable" content="yes"/>
       </Head>
       
-      <div id="touch-bound" className="board" onTouchEnd={(e)=>{handleTouchStart(e)}}>
+      <div id="touch-bound" className="board" onTouchEnd={(e)=>{handleTouchEnd(e)}}>
         <div className="menuItemContainer front-page"> 
           {(status==='frontPage') ? <div className="startBtn wider" onClick={() => {setMode("MT"); setStatus("wait1");}}>main task</div>:''}
           {(status==='frontPage') ? <div className="startBtn wider" onClick={() => {setMode("FC"); setStatus("wait2");}}>finger callibration</div>:''}
@@ -430,13 +445,74 @@ export default function Home() {
           
         <div className="menuItemContainer">
           {(status==='wait1')?<div className="startBtn" onClick={init}>Start</div>:''}
+          {(status==='wait1')?
+          <div className="radio-button-wrapper">
+            <RadioGroup row aria-label="position" name="position" defaultValue="NT" onChange={handleRadioGroup}>
+              <FormControlLabel
+                value="NT"
+                control={<Radio color="primary" />}
+                label="NT"
+                labelPlacement="top"
+              />
+              <FormControlLabel
+                value="DT"
+                control={<Radio color="primary" />}
+                label="DT"
+                labelPlacement="top"
+              />
+              <FormControlLabel
+                value="NF"
+                control={<Radio color="primary" />}
+                label="NF"
+                labelPlacement="top"
+              />
+              <FormControlLabel
+                value="DF"
+                control={<Radio color="primary" />}
+                label="DF"
+                labelPlacement="top"
+              />
+          </RadioGroup>
+          </div>
+          :''}
           {(status==='wait1')?<><input type="number" placeholder="distance radius" className="inputBox" onChange={e => setDistanceRadius(parseInt(e.target.value))}/></>:''}
           {(status==='wait1')?<><input type="number" placeholder="target button radius" className="inputBox" onChange={e => setRadius(parseInt(e.target.value))}/></>:''}
           {(status==='wait1')?<><input type="text" placeholder="Age" className="inputBox" onChange={e => setAge(parseInt(e.target.value))}/></>:''}
           {(status==='wait1')?<><input type="text" placeholder="User name" className="inputBox" onChange={e => setUsername(e.target.value)}/></>:''}
         </div>
+
         <div className="menuItemContainer">
           {(status==='wait2')?<div className="startBtn" onClick={init}>Start</div>:''}
+          {(status==='wait2')?
+          <div className="radio-button-wrapper">
+            <RadioGroup row aria-label="position" name="position" defaultValue="NT" onChange={handleRadioGroup}>
+              <FormControlLabel
+                value="NT"
+                control={<Radio color="primary" />}
+                label="NT"
+                labelPlacement="top"
+              />
+              <FormControlLabel
+                value="DT"
+                control={<Radio color="primary" />}
+                label="DT"
+                labelPlacement="top"
+              />
+              <FormControlLabel
+                value="NF"
+                control={<Radio color="primary" />}
+                label="NF"
+                labelPlacement="top"
+              />
+              <FormControlLabel
+                value="DF"
+                control={<Radio color="primary" />}
+                label="DF"
+                labelPlacement="top"
+              />
+          </RadioGroup>
+          </div>
+          :''}
           {(status==='wait2')?<><input type="number" placeholder="target button radius" className="inputBox" onChange={e => setRadius(parseInt(e.target.value))}/></>:''}
           {(status==='wait2')?<><input type="text" placeholder="Age" className="inputBox" onChange={e => setAge(parseInt(e.target.value))}/></>:''}
           {(status==='wait2')?<><input type="text" placeholder="User name" className="inputBox" onChange={e => setUsername(e.target.value)}/></>:''}
@@ -448,6 +524,7 @@ export default function Home() {
         </div>
         {(status==='go')?
         <>
+          <span className="score-board">{score}/{CONST.rounds}</span>
           {mode === 'FC' ?
             <Target radius={radius} target={target} distanceRadius={distanceRadius} name="target1"/>
           :

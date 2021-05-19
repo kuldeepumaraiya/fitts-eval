@@ -126,3 +126,16 @@ html {
 .target2 {
   display: block;
 }
+
+.score-board {
+  position: fixed;
+  top: 32px;
+  right: 18px;
+}
+.radio-button-wrapper {
+  z-index: 100;
+}
+.MuiFormControlLabel-labelPlacementTop {
+  width: 10px;
+  font-size: 18px;
+}
