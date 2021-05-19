@@ -137,7 +137,7 @@ function calcDist(from,to){
 export default function Home() {
   
   const startSound = new Howl({ src : 'beep.mp3'})
-  const errorSound = new Howl({ src : 'errorbeep.mp3', volume: 0.1})
+  const errorSound = new Howl({ src : 'errorbeep.mp3', volume: 0.7})
   const rewardSound = new Howl({ src : 'rewardbeep.mp3'})
   Howler.volume(100);
 
