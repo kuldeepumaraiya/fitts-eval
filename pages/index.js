@@ -10,8 +10,8 @@ import useSound from 'use-sound';
 
 const CONST = {
   min_dist : 30,
-  size1 : 47,
-  size2 : 54,
+  size1 : 25,
+  size2 : 60,
   size3 : 61,
   rounds : 15,
   distanceLowerBound: 50,
@@ -36,42 +36,24 @@ function convertToCSV(objArray) {
 }
 
 
-function Target({target,radius, distanceRadius, mode}) {
-  if(mode === "FC"){
-    return(
-      <div className="target-box" style={{
-        left:`${target[0]-2*radius}px`,
-        top:`${target[1]-2*radius}px`,
-        width:`${4*radius}px`,
-        height:`${4*radius}px`
+function Target({target,radius, distanceRadius, name}) {
+  return(
+    <div className={"target-box "} id={name} style={{
+      left:`${target[0]-2*radius}px`,
+      top:`${target[1]-2*radius}px`,
+      width:`${4*radius}px`,
+      height:`${4*radius}px`
+    }}>
+      <div className="target-core" style={{
+        left:`${radius}px`,
+        top:`${radius}px`,
+        width:`${2*radius}px`,
+        height:`${2*radius}px`
       }}>
-        <div className="target-core" style={{
-          left:`${radius}px`,
-          top:`${radius}px`,
-          width:`${2*radius}px`,
-          height:`${2*radius}px`
-        }}>
-        </div>
       </div>
-    )
-  }else{
-    return(
-      <div className="target-box" style={{
-        left:`${target[0]-2*radius}px`,
-        top:`${target[1]-2*radius}px`,
-        width:`${4*radius}px`,
-        height:`${4*radius}px`
-      }}>
-        <div className="target-core" style={{
-          left:`${radius}px`,
-          top:`${radius}px`,
-          width:`${2*radius}px`,
-          height:`${2*radius}px`
-        }}>
-        </div>
-      </div>
-    )
-  }
+    </div>
+  )
+  
   
 }
 
@@ -158,9 +140,10 @@ export default function Home() {
   const [radius,setRadius] = useState(CONST.size1)
   const [username,setUsername] = useState("LMAO")
   const [age,setAge] = useState(20)
-  const [distanceRadius,setDistanceRadius] = useState(CONST.size1)
+  const [distanceRadius,setDistanceRadius] = useState(CONST.size1 + CONST.size2)
   const [bounds, setBounds] = useState([0,0])
   const [target, setTarget] = useState([0,0])
+  const [target2, setTarget2] = useState([50,100])
   const [touch, setTouch] = useState([radius,radius])
   const [next, setNext] = useState([radius,radius])
   const [score, setScore] = useState(0)
@@ -187,7 +170,12 @@ export default function Home() {
     
     const next = nextPos(target,bounds,radius,pad, distanceRadius, mode)
     setTarget(next)
-    startSound.play()
+    if(mode === "MT"){
+      const next2 = nextPos(next,bounds,radius,pad, distanceRadius, mode)
+      setTarget2(next2)
+    }else{
+      startSound.play()
+    }
   }
 
   useEffect(()=>{
@@ -197,7 +185,9 @@ export default function Home() {
       parseInt(document.getElementById("touch-bound").getBoundingClientRect().height)
     ])
     setTarget([radius+pad,radius+pad])
-
+    if(mode === "MT"){
+      setTarget2([radius+pad+ distanceRadius, radius+pad+distanceRadius])
+    }
     
   },[])
 
@@ -207,6 +197,9 @@ export default function Home() {
     let csvContent = "data:text/csv;charset=utf-8,"+csvStr
     var encodedUri = encodeURI(csvContent);
     var name = mode + "_" + username +"_" + age + "_" + radius;
+    if(mode === "MT"){
+      name  = name + "_" + distanceRadius;
+    }
 
     var link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -218,75 +211,206 @@ export default function Home() {
 
   useEffect(async()=>{
     if(status!=='go')return;
+    try {
+      if(mode === 'FC'){
+        const now = Date.now()
+        
+  
+        await setRound(round+1)
+  
+        await setPrevTime(now)
+  
+        let calculatedDist = calcDist(touch,target);
+  
+        setLog(log.concat([{
+          'round': round+1,
+          'target_x' : Math.round(target[0]),
+          'target_y' : Math.round(target[1]),
+          'touch_x' : Math.round(touch[0]),
+          'touch_y' : Math.round(touch[1]),
+          'distance' : Math.round(calculatedDist),
+          'hit' : (calculatedDist<(radius)),
+          'username': username,
+          'inputTargetRadius': radius,
+          'inputAge': age,
+        }]))
+        
+          
+        const next = nextPos(target,bounds,radius,pad, distanceRadius, mode)
+        setTarget(next)
+        
+        
+        if(log.length>=CONST.rounds){
+          setStatus('end')
+        }
+  
+  
+        
+        if(calculatedDist<(radius)){
+          setScore(score+1);
+          document.getElementById("touch-bound").style.backgroundColor = "green";
+          rewardSound.play();
+        }else{
+          document.getElementById("touch-bound").style.backgroundColor = "red";
+          errorSound.play();
+        }
+        
+        setTimeout(()=>{
+          document.getElementById("touch-bound").style.backgroundColor = "white";
+        }, 300);
+  
+      }else{ // For MT
+        if(status!=='go')return;
+  
+        if(( document.getElementById("target2").style.display === '' ||
+        document.getElementById("target2").style.display === 'block') && 
+        ( document.getElementById("target1").style.display === 'none')){
+  
+          let calculatedDist = calcDist(touch,target2);
+          const now = Date.now()
+          setLog(log.concat([{
+            'round': round+1,
+            'target_x' : Math.round(target[0]),
+            'target_y' : Math.round(target[1]),
+            'touch_x' : Math.round(touch[0]),
+            'touch_y' : Math.round(touch[1]),
+            's_time': prevTime-time,
+            'e_time': now-time,
+            'duration' : now - prevTime,
+            'distance' : Math.round(calculatedDist),
+            'hit' : (calculatedDist<(radius)),
+            'username': username,
+            'inputDistanceRadius': distanceRadius,
+            'inputTargetRadius': radius,
+            'inputAge': age,
+          }]))
+  
+          
+        
+          await setPrevTime(now)
+          
+          if(log.length>=CONST.rounds){
+            setStatus('end')
+          }
+  
+          if(calculatedDist<(radius)){
+            setScore(score+1);
+            document.getElementById("touch-bound").style.backgroundColor = "green";
+            document.getElementById("target2").firstChild.style.backgroundColor = "green";
+            rewardSound.play();
+          }else{
+            document.getElementById("touch-bound").style.backgroundColor = "red";
+            document.getElementById("target2").firstChild.style.backgroundColor = "red";
+            errorSound.play();
+          }
+          
+          setTimeout(()=>{
+            document.getElementById("touch-bound").style.backgroundColor = "white";
+            const next1 = nextPos(target,bounds,radius,pad, distanceRadius, mode)
+            setTarget(next1)
     
-    const now = Date.now()
+            const next2 = nextPos(next1,bounds,radius,pad, distanceRadius, mode)
+            setTarget2(next2)
+            document.getElementById("target2").firstChild.style.backgroundColor = "black";
+            document.getElementById("target1").style.display = 'block';
+            document.getElementById("target2").style.display = 'block';
+          }, 1000);  
+  
+        }
+        
+        
+        else if(( document.getElementById("target1").style.display === '' ||
+        document.getElementById("target1").style.display === 'block') && 
+        ( document.getElementById("target2").style.display === 'none')){
+          
+          let calculatedDist = calcDist(touch,target);
+          const now = Date.now()
+          setLog(log.concat([{
+            'round': round+1,
+            'target_x' : Math.round(target[0]),
+            'target_y' : Math.round(target[1]),
+            'touch_x' : Math.round(touch[0]),
+            'touch_y' : Math.round(touch[1]),
+            's_time': prevTime-time,
+            'e_time': now-time,
+            'duration' : now - prevTime,
+            'distance' : Math.round(calculatedDist),
+            'hit' : (calculatedDist<(radius)),
+            'username': username,
+            'inputDistanceRadius': distanceRadius,
+            'inputTargetRadius': radius,
+            'inputAge': age,
+          }]))
+  
+          
+        
+          await setPrevTime(now)
+          
+          if(log.length>=CONST.rounds){
+            setStatus('end')
+          }
+  
+          if(calculatedDist<(radius)){
+            setScore(score+1);
+            document.getElementById("touch-bound").style.backgroundColor = "green";
+            document.getElementById("target1").firstChild.style.backgroundColor = "green";
+            rewardSound.play();
+          }else{
+            document.getElementById("touch-bound").style.backgroundColor = "red";
+            document.getElementById("target1").firstChild.style.backgroundColor = "red";
+            errorSound.play();
+          }
+          
+          setTimeout(()=>{
+            document.getElementById("touch-bound").style.backgroundColor = "white";
+            const next1 = nextPos(target,bounds,radius,pad, distanceRadius, mode)
+            setTarget(next1)
+  
+            const next2 = nextPos(next1,bounds,radius,pad, distanceRadius, mode)
+            setTarget2(next2)
+            document.getElementById("target1").firstChild.style.backgroundColor = "black";
+            document.getElementById("target1").style.display = 'block';
+            document.getElementById("target2").style.display = 'block';
+  
+          }, 1000);  
+  
+        }
+        
+        else if(( document.getElementById("target1").style.display === '' ||
+        document.getElementById("target1").style.display === 'block') && 
+        ( document.getElementById("target2").style.display === '' ||
+        document.getElementById("target2").style.display === 'block')){ // First target clicked
+          
+  
+          let calculatedDist1 = calcDist(touch,target);
+          let calculatedDist2 = calcDist(touch,target2);
+  
+          if(calculatedDist1 < radius){
+            const now = Date.now()
+        
+            await setPrevTime(now)
     
-
-    await setRound(round+1)
-
-    await setPrevTime(now)
-
-    let calculatedDist = calcDist(touch,target);
-
-    if(mode == "FC"){
-      setLog(log.concat([{
-        'round': round+1,
-        'target_x' : Math.round(target[0]),
-        'target_y' : Math.round(target[1]),
-        'touch_x' : Math.round(touch[0]),
-        'touch_y' : Math.round(touch[1]),
-        'distance' : Math.round(calculatedDist),
-        'hit' : (calculatedDist<(radius)),
-        'username': username,
-        'inputTargetRadius': radius,
-        'inputAge': age,
-      }]))
-    }else{
-      setLog(log.concat([{
-        'round': round+1,
-        'target_x' : Math.round(target[0]),
-        'target_y' : Math.round(target[1]),
-        'touch_x' : Math.round(touch[0]),
-        'touch_y' : Math.round(touch[1]),
-        's_time': prevTime-time,
-        'e_time': now-time,
-        'duration' : now - prevTime,
-        'distance' : Math.round(calculatedDist),
-        'hit' : (calculatedDist<(radius)),
-        'username': username,
-        'inputDistanceRadius': distanceRadius,
-        'inputTargetRadius': radius,
-        'inputAge': age,
-      }]))
+            document.getElementById("target1").style.display = 'none';
+            startSound.play()
+          }else if(calculatedDist2 < radius){
+  
+            const now = Date.now()
+        
+            await setPrevTime(now)
+    
+            document.getElementById("target2").style.display = 'none';
+            startSound.play()
+          }
+  
+          
+        }
+  
+      }
+    } catch (error) {
+      console.log("An error occured")
     }
     
-    const next = nextPos(target,bounds,radius,pad, distanceRadius, mode)
-    setTarget(next)
-    
-    
-    if(log.length>=CONST.rounds){
-      setStatus('end')
-    }
-
-
-    
-    if(calculatedDist<(radius)){
-      setScore(score+1);
-      document.getElementById("touch-bound").style.backgroundColor = "green";
-      rewardSound.play();
-    }else{
-      document.getElementById("touch-bound").style.backgroundColor = "red";
-      errorSound.play();
-    }
-    
-    setTimeout(()=>{
-      document.getElementById("touch-bound").style.backgroundColor = "white";
-    }, 300);
-      
   },[touch])
-
-
-
 
   return (
     <>
@@ -322,7 +446,20 @@ export default function Home() {
             {JSON.stringify(log.map(x=>[x.round,x.dist,x.e_time-x.s_time]),null,1)}
           </pre>
         </div>
-        {(status==='go')?<Target radius={radius} target={target} distanceRadius={distanceRadius} mode={mode}/>:''}
+        {(status==='go')?
+        <>
+          {mode === 'FC' ?
+            <Target radius={radius} target={target} distanceRadius={distanceRadius} name="target1"/>
+          :
+            <>
+              <Target radius={radius} target={target} distanceRadius={distanceRadius} name="target1"/>
+              <Target radius={radius} target={target2} distanceRadius={distanceRadius} name="target2"/>
+            </>
+          }
+          
+        </>
+        
+        :''}
         {(status==='end')
         ?
         <div className="menuItemContainer  front-page">

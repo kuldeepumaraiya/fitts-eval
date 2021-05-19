@@ -38,6 +38,7 @@ html {
 
   background-color: rgba(255, 255, 255, 0);
   opacity: 1;
+  display: block;
 }
 
 .target-core {
@@ -118,4 +119,10 @@ html {
   height: 30vh;
   position: fixed;
   top: 25vh;
+}
+.target1 {
+  display: block;
+}
+.target2 {
+  display: block;
 }
