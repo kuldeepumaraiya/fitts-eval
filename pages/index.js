@@ -124,8 +124,8 @@ function tooClose(center, point, radius){
 }
 
 function checkInside(x,y, radius, pad){
-  if(x + radius + pad < screen.width && x - radius - pad > 0){
-    if(y + radius + pad< screen.height && y - radius - pad> 0){
+  if(x + (radius) + pad < window.innerWidth && x - (radius) - pad > 0){
+    if(y + (radius) + pad< window.innerWidth && y - (radius) - pad> 0){
       return true;
     }
   }  
