@@ -120,11 +120,15 @@ html {
   position: fixed;
   top: 25vh;
 }
-.target1 {
+#target1 {
   display: block;
 }
-.target2 {
+#target2 {
   display: block;
+}
+#target2 > div {
+  background-color: white;
+  border: 1px solid black;
 }
 
 .score-board {

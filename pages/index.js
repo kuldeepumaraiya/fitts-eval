@@ -6,16 +6,13 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
-// import beep from '../public/audio/beep.mp3';
-// import errorBeep from '../public/audio/errorBeep.mp3';
-// import rewardBeep from '../public/audio/rewardBeep.mp3';
 import useSound from 'use-sound';
 
 
 
 const CONST = {
   min_dist : 30,
-  size1 : 16,
+  size1 : 24,
   size2 : 60,
   size3 : 61,
   rounds : 15,
@@ -63,7 +60,6 @@ function Target({target,radius, distanceRadius, name}) {
 }
 
 
-
 function randInt(range) {
   var min = Math.ceil(range[0]);
   var max = Math.floor(range[1]);
@@ -76,41 +72,56 @@ function randFloat(range) {
   return Math.random() * (max - min) + min;
 }
 
+function nextPos(target,radius,pad, endX, endY){
 
-function nextPos(target,bounds,radius,pad, distanceRadius, mode){
-
-  // const min_dist = CONST.min_dist;
-  // const x_range = [pad+radius,bounds[0]-pad-radius]
-  // const y_range = [pad+radius,bounds[1]-pad-radius]
-  if(mode == "FC"){
-    distanceRadius = randFloat([CONST.distanceLowerBound, CONST.distanceUpperBound]); 
-  }
-  let next = [0,0]
-  let t = randFloat([0 ,360])
-  next = getPointOnCircumference(t,target, distanceRadius)
-
-  while(!checkInside(next[0], next[1], distanceRadius, pad)){
-    if(mode == "FC"){
-      distanceRadius = randFloat([CONST.distanceLowerBound, CONST.distanceUpperBound]); 
+  let next = [pad,pad]
+  next[0] = randFloat([pad , pad + endX])
+  next[1] = randFloat([pad , pad + endY])
+  console.log(pad, pad+endX);
+  let limiter = 0;
+  while(!checkInside(next[0], next[1], 2 * radius, pad) || tooClose(target, next, 2*radius)){
+    next[0] = randFloat([pad , pad + endX])
+    next[1] = randFloat([pad , pad + endY])
+    limiter++;
+    if(limiter > 100){
+      console.log("Posn Not found")
+      break
     }
-    let t = randFloat([0 ,360])
-    next = getPointOnCircumference(t,target, distanceRadius)
-    
   }
 
-  // while(calcDist(target,next)<min_dist){
-  //   next = [randInt(x_range),randInt(y_range)]
-  // }
   return next
 }
 
+function nextPosFromTarget(target,bounds,radius,pad, distanceRadius, mode){
+  let next = [pad,pad]
+  let t = randFloat([0 ,360])
+  next = getPointOnCircumference(t,target, distanceRadius)
+  let limiter = 0;
+  while(!checkInside(next[0], next[1], distanceRadius, pad)){
+    t = randFloat([0 ,360])
+    next = getPointOnCircumference(t,target, distanceRadius)
+    limiter++;
+    if(limiter > 100){
+      console.log("Posn From Target Not found")
+      break
+    }
+  }
+  return next
+}
 
 function getPointOnCircumference(t, center, radius){
-  let temp_x = radius * Math.cos(t) + center[0];
-  let temp_y = radius * Math.sin(t) + center[1];
+  let temp_x = radius * Math.cos(t * Math.PI / 180) + center[0];
+  let temp_y = radius * Math.sin(t * Math.PI / 180) + center[1];
   return [temp_x, temp_y];
 }
 
+function tooClose(center, point, radius){
+  if ((point[0] - center[0]) * (point[0] - center[0]) +
+      (point[1] - center[1]) * (point[1] - center[1]) <= radius * radius)
+      return true;
+  else
+      return false;
+}
 
 function checkInside(x,y, radius, pad){
   if(x + radius + pad < screen.width && x - radius - pad > 0){
@@ -137,7 +148,7 @@ function calcDist(from,to){
 export default function Home() {
   
   const startSound = new Howl({ src : 'beep.mp3'})
-  const errorSound = new Howl({ src : 'errorbeep.mp3', volume: 0.7})
+  const errorSound = new Howl({ src : 'errorbeep.mp3', volume: 0.1})
   const rewardSound = new Howl({ src : 'rewardbeep.mp3'})
   Howler.volume(100);
 
@@ -145,11 +156,13 @@ export default function Home() {
   const [radius,setRadius] = useState(CONST.size1)
   const [username,setUsername] = useState("LMAO")
   const [age,setAge] = useState(20)
-  const [distanceRadius,setDistanceRadius] = useState(CONST.size1 + CONST.size2)
+  const [distanceRadius,setDistanceRadius] = useState(CONST.distanceLowerBound)
   const [bounds, setBounds] = useState([0,0])
   const [target, setTarget] = useState([0,0])
   const [target2, setTarget2] = useState([50,100])
   const [touch, setTouch] = useState([radius,radius])
+  const [prevTouch, setPrevTouch] = useState([0,0])
+  const [prevTarget, setPrevTarget] = useState([0,0])
   const [next, setNext] = useState([radius,radius])
   const [score, setScore] = useState(0)
   
@@ -162,6 +175,9 @@ export default function Home() {
   const [mode, setMode] = useState("MT")
   const [radioType, setRadioType] = useState("NT")
 
+  let canvasWidth = 320;
+  let canvasHeight = 640;
+
   function handleTouchEnd(event){
     setTouch([event.changedTouches[0].clientX,event.changedTouches[0].clientY])
   }
@@ -169,14 +185,16 @@ export default function Home() {
   
 
   function init(){
+
     setStatus('go')
     setTime(Date.now())
     setPrevTime(Date.now())
-    
-    const next = nextPos(target,bounds,radius,pad, distanceRadius, mode)
+    canvasWidth = window.innerWidth - 2 * CONST.size1;
+    canvasHeight = window.innerHeight - 2 * CONST.size1;
+    const next = nextPos(target,radius,pad, canvasWidth, canvasHeight)
     setTarget(next)
     if(mode === "MT"){
-      const next2 = nextPos(next,bounds,radius,pad, distanceRadius, mode)
+      const next2 = nextPosFromTarget(next,bounds,radius,pad, distanceRadius, mode)
       setTarget2(next2)
     }else{
       startSound.play()
@@ -184,6 +202,7 @@ export default function Home() {
   }
 
   useEffect(()=>{
+    
     
     setBounds([
       parseInt(document.getElementById("touch-bound").getBoundingClientRect().width),
@@ -261,7 +280,7 @@ export default function Home() {
         
         setTimeout(()=>{
           document.getElementById("touch-bound").style.backgroundColor = "white";
-          const next = nextPos(target,bounds,radius,pad, distanceRadius, mode)
+          const next = nextPos(target,radius,pad, canvasWidth, canvasHeight)
           setTarget(next)
           document.getElementById("target1").style.display = "block";
           startSound.play()
@@ -269,21 +288,38 @@ export default function Home() {
   
       }else if(mode === 'MT'){ // For MT
         if(status!=='go')return;
-  
-        if(( document.getElementById("target2").style.display === '' ||
-        document.getElementById("target2").style.display === 'block') && 
-        ( document.getElementById("target1").style.display === 'none')){
-  
+
+        if(( document.getElementById("target1").style.display === '' ||
+        document.getElementById("target1").style.display === 'block')){
+
+          let calculatedDist = calcDist(touch,target);
+          if(calculatedDist < radius){
+            const now = Date.now()
+            setPrevTouch(touch)
+            setPrevTarget(target)
+            await setPrevTime(now)
+    
+            document.getElementById("target1").style.display = 'none';
+            document.getElementById("target2").firstChild.style.backgroundColor = 'black';
+            document.getElementById("target2").firstChild.style.border = '0px';
+            startSound.play()
+          }
+
+        }else if(( document.getElementById("target2").style.display === '' ||
+        document.getElementById("target2").style.display === 'block')){
+
           let calculatedDist = calcDist(touch,target2);
           const now = Date.now()
           setLog(log.concat([{
             'round': round+1,
-            'target_x' : Math.round(target[0]),
-            'target_y' : Math.round(target[1]),
-            'touch_x' : Math.round(touch[0]),
-            'touch_y' : Math.round(touch[1]),
-            's_time': prevTime-time,
-            'e_time': now-time,
+            'start_target_x' : Math.round(prevTarget[0]),
+            'start_target_y' : Math.round(prevTarget[1]),
+            'start_touch_x' : Math.round(prevTouch[0]),
+            'start_touch_y' : Math.round(prevTouch[1]),
+            'end_target_x' : Math.round(target[0]),
+            'end_target_y' : Math.round(target[1]),
+            'end_touch_x' : Math.round(touch[0]),
+            'end_touch_y' : Math.round(touch[1]),
             'duration' : now - prevTime,
             'distance' : Math.round(calculatedDist),
             'hit' : (calculatedDist<(radius)),
@@ -293,8 +329,6 @@ export default function Home() {
             'inputAge': age,
           }]))
   
-          
-        
           await setPrevTime(now)
           
           if(log.length>=CONST.rounds-1){
@@ -304,120 +338,32 @@ export default function Home() {
           if(calculatedDist<(radius)){
             setScore(score+1);
             document.getElementById("touch-bound").style.backgroundColor = "green";
-            document.getElementById("target2").firstChild.style.backgroundColor = "green";
+            document.getElementById("target2").style.display = "none";
             rewardSound.play();
           }else{
             document.getElementById("touch-bound").style.backgroundColor = "red";
-            document.getElementById("target2").firstChild.style.backgroundColor = "red";
+            document.getElementById("target2").style.display = "none";
             errorSound.play();
           }
           
           setTimeout(()=>{
             document.getElementById("touch-bound").style.backgroundColor = "white";
-            const next1 = nextPos(target,bounds,radius,pad, distanceRadius, mode)
+            const next1 = nextPos(target,radius,pad, canvasWidth, canvasHeight)
             setTarget(next1)
     
-            const next2 = nextPos(next1,bounds,radius,pad, distanceRadius, mode)
+            const next2 = nextPosFromTarget(next1,bounds,radius,pad, distanceRadius, mode)
             setTarget2(next2)
-            document.getElementById("target2").firstChild.style.backgroundColor = "black";
+            document.getElementById("target2").firstChild.style.backgroundColor = "white";
+            document.getElementById("target2").firstChild.style.border = '1px solid black';
             document.getElementById("target1").style.display = 'block';
             document.getElementById("target2").style.display = 'block';
           }, 1000);  
   
+
         }
-        
-        
-        else if(( document.getElementById("target1").style.display === '' ||
-        document.getElementById("target1").style.display === 'block') && 
-        ( document.getElementById("target2").style.display === 'none')){
-          
-          let calculatedDist = calcDist(touch,target);
-          const now = Date.now()
-          setLog(log.concat([{
-            'round': round+1,
-            'target_x' : Math.round(target[0]),
-            'target_y' : Math.round(target[1]),
-            'touch_x' : Math.round(touch[0]),
-            'touch_y' : Math.round(touch[1]),
-            's_time': prevTime-time,
-            'e_time': now-time,
-            'duration' : now - prevTime,
-            'distance' : Math.round(calculatedDist),
-            'hit' : (calculatedDist<(radius)),
-            'username': username,
-            'inputDistanceRadius': distanceRadius,
-            'inputTargetRadius': radius,
-            'inputAge': age,
-          }]))
-  
-          
-        
-          await setPrevTime(now)
-          
-          if(log.length>=CONST.rounds-1){
-            setStatus('end')
-          }
-  
-          if(calculatedDist<(radius)){
-            setScore(score+1);
-            document.getElementById("touch-bound").style.backgroundColor = "green";
-            document.getElementById("target1").firstChild.style.backgroundColor = "green";
-            rewardSound.play();
-          }else{
-            document.getElementById("touch-bound").style.backgroundColor = "red";
-            document.getElementById("target1").firstChild.style.backgroundColor = "red";
-            errorSound.play();
-          }
-          
-          setTimeout(()=>{
-            document.getElementById("touch-bound").style.backgroundColor = "white";
-            const next1 = nextPos(target,bounds,radius,pad, distanceRadius, mode)
-            setTarget(next1)
-  
-            const next2 = nextPos(next1,bounds,radius,pad, distanceRadius, mode)
-            setTarget2(next2)
-            document.getElementById("target1").firstChild.style.backgroundColor = "black";
-            document.getElementById("target1").style.display = 'block';
-            document.getElementById("target2").style.display = 'block';
-  
-          }, 1000);  
-  
-        }
-        
-        else if((( document.getElementById("target1").style.display === '' ||
-        document.getElementById("target1").style.display === 'block') && 
-        ( document.getElementById("target2").style.display === '' ||
-        document.getElementById("target2").style.display === 'block'))){ // First target clicked
-          
-  
-          let calculatedDist1 = calcDist(touch,target);
-          let calculatedDist2 = calcDist(touch,target2);
-  
-          if(calculatedDist1 < radius){
-            const now = Date.now()
-        
-            await setPrevTime(now)
-    
-            document.getElementById("target1").style.display = 'none';
-            startSound.play()
-          
-          }else if(calculatedDist2 < radius){
-  
-            const now = Date.now()
-        
-            await setPrevTime(now)
-    
-            document.getElementById("target2").style.display = 'none';
-            startSound.play()
-          
-          }
-          
-        }
-  
+
       }
       
-      setTchStart(false);
-
     } catch (error) {
       console.log("An error occured")
     }
