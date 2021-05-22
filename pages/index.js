@@ -345,6 +345,7 @@ export default function Home() {
           
           if(log.length>=CONST.rounds-1){
             setStatus('end')
+            setTimeout(() => setEndButtonsShow(true), 1000);
           }
   
           if(calculatedDist<(radius)){
