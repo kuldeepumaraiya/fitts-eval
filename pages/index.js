@@ -12,7 +12,7 @@ import useSound from 'use-sound';
 
 const CONST = {
   min_dist : 30,
-  size1 : 27,
+  size1 : 24,
   size2 : 60,
   size3 : 61,
   rounds : 15,
@@ -175,7 +175,7 @@ export default function Home() {
   const [log,setLog] = useState([])
   const [mode, setMode] = useState("MT")
   const [radioType, setRadioType] = useState("NT")
-
+  const [endButtonsShow, setEndButtonsShow] = useState(false)
   let canvasWidth = 320;
   let canvasHeight = 640;
 
@@ -183,10 +183,9 @@ export default function Home() {
     setTouch([event.changedTouches[0].clientX,event.changedTouches[0].clientY])
   }
 
-  
-
   function init(){
     setStatus('go')
+    setEndButtonsShow(false)
     setTime(Date.now())
     setPrevTime(Date.now())
     canvasWidth = window.innerWidth - 2 * CONST.size1;
@@ -277,6 +276,7 @@ export default function Home() {
         
         if(log.length>=CONST.rounds-1){
           setStatus('end')
+          setTimeout(() => setEndButtonsShow(true), 1000);
         }
   
   
@@ -408,6 +408,7 @@ export default function Home() {
       
       <div id="touch-bound" className="board" onTouchEnd={(e)=>{handleTouchEnd(e)}}>
         <div className="menuItemContainer front-page"> 
+          {(status==='frontPage') ? <div className="startBtn wider" onClick={() => {setStatus("wait3");}}>screen callibration</div>:''}
           {(status==='frontPage') ? <div className="startBtn wider" onClick={() => {setMode("MT"); setStatus("wait1");}}>main task</div>:''}
           {(status==='frontPage') ? <div className="startBtn wider" onClick={() => {setMode("FC"); setStatus("wait2");}}>finger callibration</div>:''}
         </div>
@@ -449,6 +450,9 @@ export default function Home() {
           {(status==='wait1')?<><input type="text" placeholder="Age" className="inputBox" onChange={e => setAge(parseInt(e.target.value))}/></>:''}
           {(status==='wait1')?<><input type="text" placeholder="User name" className="inputBox" onChange={e => setUsername(e.target.value)}/></>:''}
         </div>
+        
+        
+        
 
         <div className="menuItemContainer">
           {(status==='wait2')?<div className="startBtn" onClick={init}>Start</div>:''}
@@ -486,11 +490,17 @@ export default function Home() {
           {(status==='wait2')?<><input type="text" placeholder="Age" className="inputBox" onChange={e => setAge(parseInt(e.target.value))}/></>:''}
           {(status==='wait2')?<><input type="text" placeholder="User name" className="inputBox" onChange={e => setUsername(e.target.value)}/></>:''}
         </div>
-        <div className="canvas" style={{margin: `${pad}px`}}>
+        {status === 'wait3' ?
+        ''
+         :
+         <div className="canvas" style={{margin: `${pad}px`}}>
           <pre className="log-box">
             {JSON.stringify(log.map(x=>[x.round,x.dist,x.e_time-x.s_time]),null,1)}
           </pre>
         </div>
+         
+         }
+        
         {(status==='go')?
         <>
           <span className="score-board">{score}/{log.length}</span>
@@ -514,13 +524,24 @@ export default function Home() {
             <span>your score</span>
             <span>{score}/{CONST.rounds}</span>
           </div>
+          {endButtonsShow ?
           <div className="end-buttons-wrapper">
             <div className="startBtn" onClick={()=>saveCsv(log)}>download</div>
             <div className="startBtn" onClick={()=>window.location.reload()}>cancel</div>
           </div>
+          :
+          ''}
+          
         </div>
         :''}
+        <div className="screen-calibration">
+        {(status === 'wait3') ? <><div className="center-box" /> <span className="startBtn" onClick={() => setStatus('frontPage')}>back</span></>
+        :''
+        }
+        
+        </div>
       </div>
+      
     </>
   )
 }

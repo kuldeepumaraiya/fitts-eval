@@ -24,7 +24,7 @@ html {
   top: 0;
   left: 0;
   right: 0;
-  padding: 9px;
+  padding: 8px;
   background-color: white;
 }
 
@@ -142,4 +142,22 @@ html {
 .MuiFormControlLabel-labelPlacementTop {
   width: 10px;
   font-size: 18px;
+}
+.screen-calibration {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.screen-calibration > span {
+  position: fixed;
+  bottom: 72px;
+  width: 70%;
+}
+
+.center-box {
+  width: 100px;
+  height: 100px;
+  background-color: black;
 }
