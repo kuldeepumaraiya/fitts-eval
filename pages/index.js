@@ -13,7 +13,7 @@ import useSound from 'use-sound';
 const CONST = {
   min_dist : 30,
   size1 : 27,
-  size2 : 60,
+  size2 : 9,
   size3 : 61,
   rounds : 15,
   distanceLowerBound: 48,
@@ -152,7 +152,7 @@ export default function Home() {
   const rewardSound = new Howl({ src : 'rewardbeep.mp3'})
   Howler.volume(100);
 
-  const [pad,setPad] = useState(CONST.size1)
+  const [pad,setPad] = useState(CONST.size1 + CONST.size2)
   const [radius,setRadius] = useState(CONST.size1)
   const [username,setUsername] = useState("LMAO")
   const [age,setAge] = useState(20)
@@ -190,19 +190,26 @@ export default function Home() {
     setPrevTime(Date.now())
     canvasWidth = window.innerWidth - 2 * CONST.size1;
     canvasHeight = window.innerHeight - 2 * CONST.size1;
+    console.log("Canvas inner width",canvasWidth)
+    console.log("Canvas inner height",canvasHeight)
     let next = nextPos(target,radius,pad, canvasWidth, canvasHeight)
     if(mode === "MT"){
       let next2 = nextPosFromTarget(next,bounds,radius,pad, distanceRadius, mode)
       while(next2[0] == -1){
         let side = randInt([0,10])
         if(side > 5){
-          next[1] = randFloat([pad+2*radius+10, distanceRadius])
+          next[1] = randFloat([pad+radius, distanceRadius])
         }else{
-          next[1] = randFloat([canvasHeight - (pad+2*radius+10) - distanceRadius, canvasHeight - (pad+2*radius+10)])
+          next[1] = randFloat([canvasHeight - (pad+radius) - distanceRadius, canvasHeight - (pad+radius)])
         }
+        if(next[1] < pad+radius){
+          next[1] = randFloat([pad+radius, distanceRadius])
+        } 
         next2 = nextPosFromTarget(next,bounds,radius,pad, distanceRadius, mode)
       }
 
+      console.log("Target 1 : ", next)
+      console.log("Target 2 : ", next2)
       setTarget(next)
       setTarget2(next2)
     }else{
@@ -410,7 +417,6 @@ export default function Home() {
       
       <div id="touch-bound" className="board" onTouchEnd={(e)=>{handleTouchEnd(e)}}>
         <div className="menuItemContainer front-page"> 
-        {(status==='frontPage') ? <div className="startBtn wider" onClick={() => {document.body.requestFullscreen();}}>full Screen</div>:''}
           {(status==='frontPage') ? <div className="startBtn wider" onClick={() => {setStatus("wait3");}}>screen callibration</div>:''}
           {(status==='frontPage') ? <div className="startBtn wider" onClick={() => {setMode("MT"); setStatus("wait1");}}>main task</div>:''}
           {(status==='frontPage') ? <div className="startBtn wider" onClick={() => {setMode("FC"); setStatus("wait2");}}>finger callibration</div>:''}
@@ -496,7 +502,7 @@ export default function Home() {
         {status === 'wait3' ?
         ''
          :
-         <div className="canvas" style={{margin: `${pad}px`}}>
+         <div className="canvas" style={{margin: `${CONST.size1}px`}}>
           <pre className="log-box">
             {JSON.stringify(log.map(x=>[x.round,x.dist,x.e_time-x.s_time]),null,1)}
           </pre>
