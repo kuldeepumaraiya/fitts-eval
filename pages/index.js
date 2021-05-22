@@ -12,7 +12,7 @@ import useSound from 'use-sound';
 
 const CONST = {
   min_dist : 30,
-  size1 : 24,
+  size1 : 27,
   size2 : 60,
   size3 : 61,
   rounds : 15,
