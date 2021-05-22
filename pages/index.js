@@ -55,10 +55,7 @@ function Target({target,radius, distanceRadius, name}) {
       </div>
     </div>
   )
-  
-  
 }
-
 
 function randInt(range) {
   var min = Math.ceil(range[0]);
@@ -74,10 +71,9 @@ function randFloat(range) {
 
 function nextPos(target,radius,pad, endX, endY){
 
-  let next = [pad,pad]
-  next[0] = randFloat([pad , pad + endX])
-  next[1] = randFloat([pad , pad + endY])
-  console.log(pad, pad+endX);
+  let next = [pad+ radius,pad+ radius]
+  next[0] = randFloat([pad + radius , pad+ radius + endX])
+  next[1] = randFloat([pad+ radius , pad + endY])
   let limiter = 0;
   while(!checkInside(next[0], next[1], 2 * radius, pad) || tooClose(target, next, 2*radius)){
     next[0] = randFloat([pad , pad + endX])
@@ -92,24 +88,29 @@ function nextPos(target,radius,pad, endX, endY){
   return next
 }
 
+
 function nextPosFromTarget(target,bounds,radius,pad, distanceRadius, mode){
-  let next = [pad,pad]
-  let t = randFloat([0 ,360])
+  console.log("Target Value : ", target)
+  let next = [target + pad,target+pad]
+  let t = 0;
   next = getPointOnCircumference(t,target, distanceRadius)
   let limiter = 0;
-  while(!checkInside(next[0], next[1], distanceRadius, pad)){
-    t = randFloat([0 ,360])
+  while(!checkInside(next[0], next[1], radius, pad)){
+    t = (t+10)%360;
     next = getPointOnCircumference(t,target, distanceRadius)
     limiter++;
-    if(limiter > 100){
+    if(limiter > 36){
       console.log("Posn From Target Not found")
       break
     }
   }
+  if(!checkInside(next[0], next[1], radius, pad)) return [-1, -1];
+
   return next
 }
 
 function getPointOnCircumference(t, center, radius){
+  t = t%360;
   let temp_x = radius * Math.cos(t * Math.PI / 180) + center[0];
   let temp_y = radius * Math.sin(t * Math.PI / 180) + center[1];
   return [temp_x, temp_y];
@@ -124,8 +125,8 @@ function tooClose(center, point, radius){
 }
 
 function checkInside(x,y, radius, pad){
-  if(x + (radius) + pad < window.innerWidth && x - (radius) - pad > 0){
-    if(y + (radius) + pad< window.innerWidth && y - (radius) - pad> 0){
+  if(x + radius + pad < window.innerWidth && x - radius - pad > 0){
+    if(y + radius + pad< window.innerHeight && y - radius - pad> 0){
       return true;
     }
   }  
@@ -185,18 +186,30 @@ export default function Home() {
   
 
   function init(){
-
     setStatus('go')
     setTime(Date.now())
     setPrevTime(Date.now())
     canvasWidth = window.innerWidth - 2 * CONST.size1;
     canvasHeight = window.innerHeight - 2 * CONST.size1;
-    const next = nextPos(target,radius,pad, canvasWidth, canvasHeight)
-    setTarget(next)
+    let next = nextPos(target,radius,pad, canvasWidth, canvasHeight)
     if(mode === "MT"){
-      const next2 = nextPosFromTarget(next,bounds,radius,pad, distanceRadius, mode)
+      let next2 = nextPosFromTarget(next,bounds,radius,pad, distanceRadius, mode)
+      while(next2[0] == -1){
+        let side = randInt([0,10])
+        if(side > 5){
+          next[1] = randFloat([pad+radius+10, distanceRadius])
+        }else{
+          next[1] = randFloat([window.innerHeight - (pad+radius) - distanceRadius, window.innerHeight - (pad+radius)])
+        }
+        next2 = nextPosFromTarget(next,bounds,radius,pad, distanceRadius, mode)
+      }
+
+      setTarget(next)
       setTarget2(next2)
+      console.log("Next : ", next)
+      console.log("Next2 : ", next2)
     }else{
+      setTarget(next)
       startSound.play()
     }
   }
@@ -348,10 +361,19 @@ export default function Home() {
           
           setTimeout(()=>{
             document.getElementById("touch-bound").style.backgroundColor = "white";
-            const next1 = nextPos(target,radius,pad, canvasWidth, canvasHeight)
+            let next1 = nextPos(target,radius,pad, canvasWidth, canvasHeight)
             setTarget(next1)
     
-            const next2 = nextPosFromTarget(next1,bounds,radius,pad, distanceRadius, mode)
+            let next2 = nextPosFromTarget(next1,bounds,radius,pad, distanceRadius, mode)
+            while(next2[0] == -1){
+              let side = randInt([0,10])
+              if(side > 5){
+                next[1] = randFloat([pad+radius+10, distanceRadius])
+              }else{
+                next[1] = randFloat([window.innerHeight - (pad+radius+10) - distanceRadius, window.innerHeight - (pad+radius+10)])
+              }
+              next2 = nextPosFromTarget(next,bounds,radius,pad, distanceRadius, mode)
+            }
             setTarget2(next2)
             document.getElementById("target2").firstChild.style.backgroundColor = "white";
             document.getElementById("target2").firstChild.style.border = '1px solid black';
@@ -476,6 +498,7 @@ export default function Home() {
             <Target radius={radius} target={target} distanceRadius={distanceRadius} name="target1"/>
           :
             <>
+
               <Target radius={radius} target={target} distanceRadius={distanceRadius} name="target1"/>
               <Target radius={radius} target={target2} distanceRadius={distanceRadius} name="target2"/>
             </>
