@@ -88,11 +88,10 @@ function nextPos(target,radius,pad, endX, endY){
   return next
 }
 
-
 function nextPosFromTarget(target,bounds,radius,pad, distanceRadius, mode){
   console.log("Target Value : ", target)
   let next = [target + pad,target+pad]
-  let t = 0;
+  let t = randFloat([0, 360]);
   next = getPointOnCircumference(t,target, distanceRadius)
   let limiter = 0;
   while(!checkInside(next[0], next[1], radius, pad)){
@@ -170,6 +169,7 @@ export default function Home() {
   const [round,setRound] = useState(0)
   const [time, setTime] = useState(0)
   const [prevTime,setPrevTime] = useState(0)
+  const [avgTime, setAvgTime] = useState(0)
 
   const [status,setStatus] = useState('frontPage')
   const [log,setLog] = useState([])
@@ -339,6 +339,8 @@ export default function Home() {
             'inputTargetRadius': radius,
             'inputAge': age,
           }]))
+
+          await setAvgTime(avgTime +  (now - prevTime))
   
           await setPrevTime(now)
           
@@ -523,6 +525,9 @@ export default function Home() {
           <div className="end-score-wrapper">
             <span>your score</span>
             <span>{score}/{CONST.rounds}</span>
+            <br></br>
+            <span style={{fontSize:'24px'}}>average time per trial</span>
+            <span style={{fontWeight:'900', fontSize:'32px'}}>{(avgTime/15000).toFixed(3)} sec</span>
           </div>
           {endButtonsShow ?
           <div className="end-buttons-wrapper">
