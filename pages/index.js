@@ -196,12 +196,11 @@ export default function Home() {
       while(next2[0] == -1){
         let side = randInt([0,10])
         if(side > 5){
-          next[1] = randFloat([pad+radius+10, distanceRadius])
+          next[1] = randFloat([pad+2*radius+10, distanceRadius])
         }else{
-          next[1] = randFloat([window.innerHeight - (pad+radius+10) - distanceRadius, window.innerHeight - (pad+radius+10)])
+          next[1] = randFloat([canvasHeight - (pad+2*radius+10) - distanceRadius, canvasHeight - (pad+2*radius+10)])
         }
         next2 = nextPosFromTarget(next,bounds,radius,pad, distanceRadius, mode)
-
       }
 
       setTarget(next)
@@ -367,9 +366,9 @@ export default function Home() {
             while(next2[0] == -1){
               let side = randInt([0,10])
               if(side > 5){
-                next1[1] = randFloat([pad+radius+10, distanceRadius])
+                next1[1] = randFloat([pad+2*radius+10, distanceRadius])
               }else{
-                next1[1] = randFloat([window.innerHeight - (pad+radius+10) - distanceRadius, window.innerHeight - (pad+radius+10)])
+                next1[1] = randFloat([window.innerHeight - (pad+2*radius+10) - distanceRadius, window.innerHeight - (pad+2*radius+10)])
               }
               next2 = nextPosFromTarget(next1,bounds,radius,pad, distanceRadius, mode)
             }
