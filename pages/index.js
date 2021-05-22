@@ -199,15 +199,14 @@ export default function Home() {
         if(side > 5){
           next[1] = randFloat([pad+radius+10, distanceRadius])
         }else{
-          next[1] = randFloat([window.innerHeight - (pad+radius) - distanceRadius, window.innerHeight - (pad+radius)])
+          next[1] = randFloat([window.innerHeight - (pad+radius+10) - distanceRadius, window.innerHeight - (pad+radius+10)])
         }
         next2 = nextPosFromTarget(next,bounds,radius,pad, distanceRadius, mode)
+
       }
 
       setTarget(next)
       setTarget2(next2)
-      console.log("Next : ", next)
-      console.log("Next2 : ", next2)
     }else{
       setTarget(next)
       startSound.play()
@@ -362,19 +361,20 @@ export default function Home() {
           setTimeout(()=>{
             document.getElementById("touch-bound").style.backgroundColor = "white";
             let next1 = nextPos(target,radius,pad, canvasWidth, canvasHeight)
-            setTarget(next1)
-    
+            
             let next2 = nextPosFromTarget(next1,bounds,radius,pad, distanceRadius, mode)
             while(next2[0] == -1){
               let side = randInt([0,10])
               if(side > 5){
-                next[1] = randFloat([pad+radius+10, distanceRadius])
+                next1[1] = randFloat([pad+radius+10, distanceRadius])
               }else{
-                next[1] = randFloat([window.innerHeight - (pad+radius+10) - distanceRadius, window.innerHeight - (pad+radius+10)])
+                next1[1] = randFloat([window.innerHeight - (pad+radius+10) - distanceRadius, window.innerHeight - (pad+radius+10)])
               }
-              next2 = nextPosFromTarget(next,bounds,radius,pad, distanceRadius, mode)
+              next2 = nextPosFromTarget(next1,bounds,radius,pad, distanceRadius, mode)
             }
+            setTarget(next1)
             setTarget2(next2)
+            
             document.getElementById("target2").firstChild.style.backgroundColor = "white";
             document.getElementById("target2").firstChild.style.border = '1px solid black';
             document.getElementById("target1").style.display = 'block';
