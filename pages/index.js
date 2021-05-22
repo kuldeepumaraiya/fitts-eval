@@ -158,7 +158,7 @@ export default function Home() {
   const [age,setAge] = useState(20)
   const [distanceRadius,setDistanceRadius] = useState(CONST.distanceLowerBound)
   const [bounds, setBounds] = useState([0,0])
-  const [target, setTarget] = useState([0,0])
+  const [target, setTarget] = useState([pad+radius,pad+radius])
   const [target2, setTarget2] = useState([50,100])
   const [touch, setTouch] = useState([radius,radius])
   const [prevTouch, setPrevTouch] = useState([0,0])
@@ -410,6 +410,7 @@ export default function Home() {
       
       <div id="touch-bound" className="board" onTouchEnd={(e)=>{handleTouchEnd(e)}}>
         <div className="menuItemContainer front-page"> 
+        {(status==='frontPage') ? <div className="startBtn wider" onClick={() => {document.body.requestFullscreen();}}>full Screen</div>:''}
           {(status==='frontPage') ? <div className="startBtn wider" onClick={() => {setStatus("wait3");}}>screen callibration</div>:''}
           {(status==='frontPage') ? <div className="startBtn wider" onClick={() => {setMode("MT"); setStatus("wait1");}}>main task</div>:''}
           {(status==='frontPage') ? <div className="startBtn wider" onClick={() => {setMode("FC"); setStatus("wait2");}}>finger callibration</div>:''}
