@@ -188,24 +188,30 @@ export default function Home() {
     setEndButtonsShow(false)
     setTime(Date.now())
     setPrevTime(Date.now())
-    canvasWidth = window.innerWidth - 2 * CONST.size1;
-    canvasHeight = window.innerHeight - 2 * CONST.size1;
+    canvasWidth = window.innerWidth - 2 * (CONST.size1+ CONST.size2);
+    canvasHeight = window.innerHeight - 2 * (CONST.size1+ CONST.size2);
     console.log("Canvas inner width",canvasWidth)
     console.log("Canvas inner height",canvasHeight)
     let next = nextPos(target,radius,pad, canvasWidth, canvasHeight)
     if(mode === "MT"){
       let next2 = nextPosFromTarget(next,bounds,radius,pad, distanceRadius, mode)
+      let limit = 0;
       while(next2[0] == -1){
         let side = randInt([0,10])
         if(side > 5){
-          next[1] = randFloat([pad+radius, distanceRadius])
+          next[1] = randFloat([pad + radius, pad + radius + distanceRadius])
         }else{
-          next[1] = randFloat([canvasHeight - (pad+radius) - distanceRadius, canvasHeight - (pad+radius)])
+          next[1] = randFloat([(2*canvasHeight/3) + pad, canvasHeight + pad-radius])
         }
         if(next[1] < pad+radius){
-          next[1] = randFloat([pad+radius, distanceRadius])
+          next[1] = randFloat([pad+radius, pad+radius+distanceRadius])
         } 
         next2 = nextPosFromTarget(next,bounds,radius,pad, distanceRadius, mode)
+        limit++;
+        if(limit > 50){
+          console.log("Limit Reached, no 2 points were found.")
+          break;
+        }
       }
 
       console.log("Target 1 : ", next)
