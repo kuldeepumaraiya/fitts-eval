@@ -94,8 +94,10 @@ function nextPosFromTarget(target,bounds,radius,pad, distanceRadius, mode){
   let t = randFloat([0, 360]);
   next = getPointOnCircumference(t,target, distanceRadius)
   let limiter = 0;
+  let randomNum = randInt([1, 42]);
   while(!checkInside(next[0], next[1], radius, pad)){
-    t = (t+10)%360;
+    randomNum = randInt([1, 42]);
+    t = (t + randomNum*10)%360;
     next = getPointOnCircumference(t,target, distanceRadius)
     limiter++;
     if(limiter > 36){
@@ -165,6 +167,7 @@ export default function Home() {
   const [prevTarget, setPrevTarget] = useState([0,0])
   const [next, setNext] = useState([radius,radius])
   const [score, setScore] = useState(0)
+  const [angles, setAngles] = useState()
   
   const [round,setRound] = useState(0)
   const [time, setTime] = useState(0)
@@ -188,6 +191,7 @@ export default function Home() {
     setEndButtonsShow(false)
     setTime(Date.now())
     setPrevTime(Date.now())
+    
     canvasWidth = window.innerWidth - 2 * (CONST.size1+ CONST.size2);
     canvasHeight = window.innerHeight - 2 * (CONST.size1+ CONST.size2);
     console.log("Canvas inner width",canvasWidth)
