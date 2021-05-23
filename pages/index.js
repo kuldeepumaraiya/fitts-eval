@@ -4,9 +4,6 @@ import Head from 'next/head';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormControl from '@material-ui/core/FormControl';
-import FormLabel from '@material-ui/core/FormLabel';
-import useSound from 'use-sound';
 
 
 
@@ -291,6 +288,7 @@ export default function Home() {
         
         
         if(log.length>=CONST.rounds-1){
+          document.getElementById("touch-bound").style.backgroundColor = "white";
           setStatus('end')
           setTimeout(() => setEndButtonsShow(true), 1000);
         }
@@ -362,6 +360,7 @@ export default function Home() {
           await setPrevTime(now)
           
           if(log.length>=CONST.rounds-1){
+            document.getElementById("touch-bound").style.backgroundColor = "white";
             setStatus('end')
             setTimeout(() => setEndButtonsShow(true), 1000);
           }
