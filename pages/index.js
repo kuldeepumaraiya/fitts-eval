@@ -18,7 +18,6 @@ const CONST = {
 }
 function range(start, stop, step) {
   if (typeof stop == 'undefined') {
-      // one param defined
       stop = start;
       start = 0;
   }
@@ -114,26 +113,26 @@ function nextPosFromTarget(target,bounds,radius,pad, distanceRadius, mode){
 
   let temp = getAngleFromX(distanceRadius, target, window.innerWidth - (radius + pad) )
   if(temp.length == 2){
-    let arrTemp = Array.from(range(0,Math.min(temp)))
-    arrTemp += Array.from(range(Math.max(temp),360))
+    let arrTemp = Array.from(range(0,Math.min(temp[0], temp[1])))
+    arrTemp += Array.from(range(Math.max(temp[0], temp[1]),360))
     allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
   }
 
   temp = getAngleFromX(distanceRadius, target, radius + pad)
   if(temp.length == 2){
-    let arrTemp = Array.from(range(Math.min(temp), Math.max(temp)))
+    let arrTemp = Array.from(range(Math.min(temp[0], temp[1]), Math.max(temp[0], temp[1])))
     allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
   }
 
   temp = getAngleFromY(distanceRadius, target, radius + pad)
   if(temp.length == 2){
-    let arrTemp = Array.from(range(Math.min(temp), Math.max(temp)))
+    let arrTemp = Array.from(range(Math.min(temp[0], temp[1]), Math.max(temp[0], temp[1])))
     allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
   }
 
   temp = getAngleFromY(distanceRadius, target, window.innerHeight - (radius + pad))
   if(temp.length == 2){
-    let arrTemp = Array.from(range(Math.min(temp), Math.max(temp)))
+    let arrTemp = Array.from(range(Math.min(temp[0], temp[1]), Math.max(temp[0], temp[1])))
     allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
   }
 
@@ -142,37 +141,39 @@ function nextPosFromTarget(target,bounds,radius,pad, distanceRadius, mode){
   next = getPointOnCircumference(t,target, distanceRadius)
   let limiter = 0;
   let randomNum = randInt([1, 42]);
+
+
   while(!checkInside(next[0], next[1], radius, pad)){
     let allowedRange = Array.from(range(0,361));
 
-    let temp = getAngleFromX(distanceRadius, target, window.innerWidth - (radius + pad) )
-    if(temp.length == 2){
-      let arrTemp = Array.from(range(0,Math.min(temp)))
-      arrTemp += Array.from(range(Math.max(temp),360))
-      allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
-    }
+  let temp = getAngleFromX(distanceRadius, target, window.innerWidth - (radius + pad) )
+  if(temp.length == 2){
+    let arrTemp = Array.from(range(0,Math.min(temp[0], temp[1])))
+    arrTemp += Array.from(range(Math.max(temp[0], temp[1]),360))
+    allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
+  }
 
-    temp = getAngleFromX(distanceRadius, target, radius + pad)
-    if(temp.length == 2){
-      let arrTemp = Array.from(range(Math.min(temp), Math.max(temp)))
-      allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
-    }
+  temp = getAngleFromX(distanceRadius, target, radius + pad)
+  if(temp.length == 2){
+    let arrTemp = Array.from(range(Math.min(temp[0], temp[1]), Math.max(temp[0], temp[1])))
+    allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
+  }
 
-    temp = getAngleFromY(distanceRadius, target, radius + pad)
-    if(temp.length == 2){
-      let arrTemp = Array.from(range(Math.min(temp), Math.max(temp)))
-      allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
-    }
+  temp = getAngleFromY(distanceRadius, target, radius + pad)
+  if(temp.length == 2){
+    let arrTemp = Array.from(range(Math.min(temp[0], temp[1]), Math.max(temp[0], temp[1])))
+    allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
+  }
 
-    temp = getAngleFromY(distanceRadius, target, window.innerHeight - (radius + pad))
-    if(temp.length == 2){
-      let arrTemp = Array.from(range(Math.min(temp), Math.max(temp)))
-      allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
-    }
+  temp = getAngleFromY(distanceRadius, target, window.innerHeight - (radius + pad))
+  if(temp.length == 2){
+    let arrTemp = Array.from(range(Math.min(temp[0], temp[1]), Math.max(temp[0], temp[1])))
+    allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
+  }
 
-    let t = allowedRange[randInt([0, allowedRange.length])];
+  let t = allowedRange[randInt([0, allowedRange.length])];
 
-    next = getPointOnCircumference(t,target, distanceRadius)
+  next = getPointOnCircumference(t,target, distanceRadius)
     limiter++;
     if(limiter > 36){ 
       console.log("Posn From Target Not found")
@@ -239,12 +240,10 @@ function calcDist(from,to){
 }
 
 export default function Home() {
-  
   const startSound = new Howl({ src : 'beep.mp3'})
   const errorSound = new Howl({ src : 'errorbeep.mp3', volume: 0.1})
   const rewardSound = new Howl({ src : 'rewardbeep.mp3'})
   Howler.volume(100);
-
   const [pad,setPad] = useState(CONST.size1 + CONST.size2)
   const [radius,setRadius] = useState(CONST.size1)
   const [username,setUsername] = useState("LMAO")
@@ -560,7 +559,7 @@ export default function Home() {
           {(status==='wait1')?<><input type="number" placeholder="distance radius" className="inputBox" onChange={e => setDistanceRadius(parseInt(e.target.value))}/></>:''}
           {(status==='wait1')?<><input type="number" placeholder="target button radius" className="inputBox" onChange={e => setRadius(parseInt(e.target.value))}/></>:''}
           {(status==='wait1')?<><input type="text" placeholder="Age" className="inputBox" onChange={e => setAge(parseInt(e.target.value))}/></>:''}
-          {(status==='wait1')?<><input type="text" placeholder="User name" className="inputBox" onChange={e => setUsername(e.target.value)}/></>:''}
+          {(status==='wait1')?<><input type="text" placeholder="User name" className="inputBox" onChange={e => {if(e.target.value)setUsername(e.target.value);}}/></>:''}
         </div>
         
         
@@ -600,7 +599,7 @@ export default function Home() {
           :''}
           {(status==='wait2')?<><input type="number" placeholder="target button radius" className="inputBox" onChange={e => setRadius(parseInt(e.target.value))}/></>:''}
           {(status==='wait2')?<><input type="text" placeholder="Age" className="inputBox" onChange={e => setAge(parseInt(e.target.value))}/></>:''}
-          {(status==='wait2')?<><input type="text" placeholder="User name" className="inputBox" onChange={e => setUsername(e.target.value)}/></>:''}
+          {(status==='wait2')?<><input type="text" placeholder="User name" className="inputBox" onChange={e => {if(e.target.value)setUsername(e.target.value);}}/></>:''}
         </div>
         {status === 'wait3' ?
         ''
