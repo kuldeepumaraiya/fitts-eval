@@ -338,12 +338,12 @@ export default function Home() {
           const now = Date.now()
           setLog(log.concat([{
             'round': round+1,
-            'start_target_x' : Math.round(prevTarget[0]),
-            'start_target_y' : Math.round(prevTarget[1]),
+            'start_target_x' : Math.round(target[0]),
+            'start_target_y' : Math.round(target[1]),
             'start_touch_x' : Math.round(prevTouch[0]),
             'start_touch_y' : Math.round(prevTouch[1]),
-            'end_target_x' : Math.round(target[0]),
-            'end_target_y' : Math.round(target[1]),
+            'end_target_x' : Math.round(target2[0]),
+            'end_target_y' : Math.round(target2[1]),
             'end_touch_x' : Math.round(touch[0]),
             'end_touch_y' : Math.round(touch[1]),
             'duration' : now - prevTime,
