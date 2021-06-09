@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {Howl, Howler} from 'howler';
 import Head from 'next/head';
 import Radio from '@material-ui/core/Radio';
@@ -245,10 +245,10 @@ export default function Home() {
   const rewardSound = new Howl({ src : 'rewardbeep.mp3'})
   Howler.volume(100);
   const [pad,setPad] = useState(CONST.size1 + CONST.size2)
-  const [radius,setRadius] = useState(CONST.size1)
-  const [username,setUsername] = useState("LMAO")
-  const [age,setAge] = useState(20)
-  const [distanceRadius,setDistanceRadius] = useState(CONST.distanceLowerBound)
+  const [radius,setRadius] = useState()
+  const [username,setUsername] = useState("")
+  const [age,setAge] = useState()
+  const [distanceRadius,setDistanceRadius] = useState()
   const [bounds, setBounds] = useState([0,0])
   const [target, setTarget] = useState([pad+radius,pad+radius])
   const [target2, setTarget2] = useState([50,100])
@@ -319,7 +319,10 @@ export default function Home() {
   }
 
   useEffect(()=>{
-    
+    setUsername(sessionStorage.getItem("username")?sessionStorage.getItem("username"):"")
+    setAge(sessionStorage.getItem("age")?sessionStorage.getItem("age"):20)
+    setRadius(sessionStorage.getItem("radius")?sessionStorage.getItem("radius"):CONST.size1)
+    setDistanceRadius(sessionStorage.getItem("distanceRadius")?sessionStorage.getItem("distanceRadius"):CONST.distanceLowerBound)
     
     setBounds([
       parseInt(document.getElementById("touch-bound").getBoundingClientRect().width),
@@ -506,6 +509,7 @@ export default function Home() {
   function handleRadioGroup(e){
     setRadioType(e.target.value)
   }
+  
 
   return (
     <>
@@ -556,10 +560,10 @@ export default function Home() {
           </RadioGroup>
           </div>
           :''}
-          {(status==='wait1')?<><input type="number" placeholder="distance radius" className="inputBox" onChange={e => setDistanceRadius(parseInt(e.target.value))}/></>:''}
-          {(status==='wait1')?<><input type="number" placeholder="target button radius" className="inputBox" onChange={e => setRadius(parseInt(e.target.value))}/></>:''}
-          {(status==='wait1')?<><input type="text" placeholder="Age" className="inputBox" onChange={e => setAge(parseInt(e.target.value))}/></>:''}
-          {(status==='wait1')?<><input type="text" placeholder="User name" className="inputBox" onChange={e => {if(e.target.value)setUsername(e.target.value);}}/></>:''}
+          {(status==='wait1')?<><input type="number" placeholder="distance radius" className="inputBox"  value={distanceRadius?distanceRadius.toString():""} onChange={e => {if(e.target){ setDistanceRadius(parseInt(e.target.value)); sessionStorage.setItem("distanceRadius",parseInt(e.target.value) )}}}/></>:''}
+          {(status==='wait1')?<><input type="number" placeholder="target button radius" className="inputBox"  value={radius?radius.toString():""} onChange={e => {if(e.target){ setRadius(parseInt(e.target.value)); sessionStorage.setItem("radius",parseInt(e.target.value) )}}}/></>:''}
+          {(status==='wait1')?<><input type="text" placeholder="Age" className="inputBox"  value={age?age.toString():""} onChange={e => {if(e.target){ setAge(parseInt(e.target.value)); sessionStorage.setItem("age",parseInt(e.target.value) )}}}/></>:''}
+          {(status==='wait1')?<><input type="text" placeholder="User name" className="inputBox"  value={username} onChange={e => {if(e.target){setUsername(e.target.value); sessionStorage.setItem("username",e.target.value )}}}/></>:''}
         </div>
         
         
@@ -597,9 +601,9 @@ export default function Home() {
           </RadioGroup>
           </div>
           :''}
-          {(status==='wait2')?<><input type="number" placeholder="target button radius" className="inputBox" onChange={e => setRadius(parseInt(e.target.value))}/></>:''}
-          {(status==='wait2')?<><input type="text" placeholder="Age" className="inputBox" onChange={e => setAge(parseInt(e.target.value))}/></>:''}
-          {(status==='wait2')?<><input type="text" placeholder="User name" className="inputBox" onChange={e => {if(e.target.value)setUsername(e.target.value);}}/></>:''}
+          {(status==='wait2')?<><input type="number" placeholder="target button radius" className="inputBox" value={radius?radius.toString():""} onChange={e => {if(e.target){ setRadius(parseInt(e.target.value)); sessionStorage.setItem("radius",parseInt(e.target.value) )}}}/></>:''}
+          {(status==='wait2')?<><input type="text" placeholder="Age" className="inputBox" value={age?age.toString():""}  onChange={e => {if(e.target){ setAge(parseInt(e.target.value)); sessionStorage.setItem("age",parseInt(e.target.value) )}}}/></>:''}
+          {(status==='wait2')?<><input type="text" placeholder="User name" className="inputBox"  value={username} onChange={e => {if(e.target){setUsername(e.target.value); sessionStorage.setItem("username",e.target.value )}}}/></>:''}
         </div>
         {status === 'wait3' ?
         ''
