@@ -16,7 +16,28 @@ const CONST = {
   distanceLowerBound: 48,
   distanceUpperBound: 384,
 }
+function range(start, stop, step) {
+  if (typeof stop == 'undefined') {
+      // one param defined
+      stop = start;
+      start = 0;
+  }
 
+  if (typeof step == 'undefined') {
+      step = 1;
+  }
+
+  if ((step > 0 && start >= stop) || (step < 0 && start <= stop)) {
+      return [];
+  }
+
+  var result = [];
+  for (var i = start; step > 0 ? i < stop : i > stop; i += step) {
+      result.push(i);
+  }
+
+  return result;
+};
 
 function convertToCSV(objArray) {
   var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
@@ -88,16 +109,72 @@ function nextPos(target,radius,pad, endX, endY){
 function nextPosFromTarget(target,bounds,radius,pad, distanceRadius, mode){
   console.log("Target Value : ", target)
   let next = [target + pad,target+pad]
-  let t = randFloat([0, 360]);
+  
+  let allowedRange = Array.from(range(0,361));
+
+  let temp = getAngleFromX(distanceRadius, target, window.innerWidth - (radius + pad) )
+  if(temp.length == 2){
+    let arrTemp = Array.from(range(0,Math.min(temp)))
+    arrTemp += Array.from(range(Math.max(temp),360))
+    allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
+  }
+
+  temp = getAngleFromX(distanceRadius, target, radius + pad)
+  if(temp.length == 2){
+    let arrTemp = Array.from(range(Math.min(temp), Math.max(temp)))
+    allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
+  }
+
+  temp = getAngleFromY(distanceRadius, target, radius + pad)
+  if(temp.length == 2){
+    let arrTemp = Array.from(range(Math.min(temp), Math.max(temp)))
+    allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
+  }
+
+  temp = getAngleFromY(distanceRadius, target, window.innerHeight - (radius + pad))
+  if(temp.length == 2){
+    let arrTemp = Array.from(range(Math.min(temp), Math.max(temp)))
+    allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
+  }
+
+  let t = allowedRange[randInt([0, allowedRange.length])];
+
   next = getPointOnCircumference(t,target, distanceRadius)
   let limiter = 0;
   let randomNum = randInt([1, 42]);
   while(!checkInside(next[0], next[1], radius, pad)){
-    randomNum = randInt([1, 42]);
-    t = (t + randomNum*10)%360;
+    let allowedRange = Array.from(range(0,361));
+
+    let temp = getAngleFromX(distanceRadius, target, window.innerWidth - (radius + pad) )
+    if(temp.length == 2){
+      let arrTemp = Array.from(range(0,Math.min(temp)))
+      arrTemp += Array.from(range(Math.max(temp),360))
+      allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
+    }
+
+    temp = getAngleFromX(distanceRadius, target, radius + pad)
+    if(temp.length == 2){
+      let arrTemp = Array.from(range(Math.min(temp), Math.max(temp)))
+      allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
+    }
+
+    temp = getAngleFromY(distanceRadius, target, radius + pad)
+    if(temp.length == 2){
+      let arrTemp = Array.from(range(Math.min(temp), Math.max(temp)))
+      allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
+    }
+
+    temp = getAngleFromY(distanceRadius, target, window.innerHeight - (radius + pad))
+    if(temp.length == 2){
+      let arrTemp = Array.from(range(Math.min(temp), Math.max(temp)))
+      allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
+    }
+
+    let t = allowedRange[randInt([0, allowedRange.length])];
+
     next = getPointOnCircumference(t,target, distanceRadius)
     limiter++;
-    if(limiter > 36){
+    if(limiter > 36){ 
       console.log("Posn From Target Not found")
       break
     }
@@ -112,6 +189,23 @@ function getPointOnCircumference(t, center, radius){
   let temp_x = radius * Math.cos(t * Math.PI / 180) + center[0];
   let temp_y = radius * Math.sin(t * Math.PI / 180) + center[1];
   return [temp_x, temp_y];
+}
+function getAngleFromX(radius, center, x){
+  let angle = (180 * Math.acos( ( (x - center[0]) / radius) ))/Math.PI;
+  if(angle){
+    return [angle, 360-angle];
+  }
+  return [];
+}
+function getAngleFromY(radius, center, y){
+  let angle = (180 * Math.asin((y - center[1]) / radius))/Math.PI;
+  if(angle){
+    if(angle > 0){
+      return [angle, 180 - angle];
+    }
+    return [360 + angle, 180 - angle];
+  }
+  return [];
 }
 
 function tooClose(center, point, radius){
