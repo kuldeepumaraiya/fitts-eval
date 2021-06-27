@@ -521,7 +521,7 @@ export default function Home() {
         <meta name="apple-mobile-web-app-capable" content="yes"/>
       </Head>
       
-      <div id="touch-bound" className="board" onTouchEnd={(e)=>{handleTouchEnd(e)}}>
+      <div id="touch-bound" className="board" onTouchStart={(e)=>{handleTouchEnd(e)}}>
         <div className="menuItemContainer front-page"> 
           {(status==='frontPage') ? <div className="startBtn wider" onClick={() => {setStatus("wait3");}}>screen callibration</div>:''}
           {(status==='frontPage') ? <div className="startBtn wider" onClick={() => {setMode("MT"); setStatus("wait1");}}>main task</div>:''}
