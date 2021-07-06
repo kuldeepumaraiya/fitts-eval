@@ -90,7 +90,7 @@ function nextPos(target,radius,pad, endX, endY){
 
   let next = [pad+ radius,pad+ radius]
   next[0] = randFloat([pad + radius , pad+ radius + endX])
-  next[1] = randFloat([pad+ radius , pad + endY])
+  next[1] = randFloat([pad+ radius , pad + radius+ endY])
   let limiter = 0;
   while(!checkInside(next[0], next[1], 2 * radius, pad) || tooClose(target, next, 2*radius)){
     next[0] = randFloat([pad , pad + endX])
@@ -146,34 +146,34 @@ function nextPosFromTarget(target,bounds,radius,pad, distanceRadius, mode){
   while(!checkInside(next[0], next[1], radius, pad)){
     let allowedRange = Array.from(range(0,361));
 
-  let temp = getAngleFromX(distanceRadius, target, window.innerWidth - (radius + pad) )
-  if(temp.length == 2){
-    let arrTemp = Array.from(range(0,Math.min(temp[0], temp[1])))
-    arrTemp += Array.from(range(Math.max(temp[0], temp[1]),360))
-    allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
-  }
+    let temp = getAngleFromX(distanceRadius, target, window.innerWidth - (radius + pad) )
+    if(temp.length == 2){
+      let arrTemp = Array.from(range(0,Math.min(temp[0], temp[1])))
+      arrTemp += Array.from(range(Math.max(temp[0], temp[1]),360))
+      allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
+    }
 
-  temp = getAngleFromX(distanceRadius, target, radius + pad)
-  if(temp.length == 2){
-    let arrTemp = Array.from(range(Math.min(temp[0], temp[1]), Math.max(temp[0], temp[1])))
-    allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
-  }
+    temp = getAngleFromX(distanceRadius, target, radius + pad)
+    if(temp.length == 2){
+      let arrTemp = Array.from(range(Math.min(temp[0], temp[1]), Math.max(temp[0], temp[1])))
+      allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
+    }
 
-  temp = getAngleFromY(distanceRadius, target, radius + pad)
-  if(temp.length == 2){
-    let arrTemp = Array.from(range(Math.min(temp[0], temp[1]), Math.max(temp[0], temp[1])))
-    allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
-  }
+    temp = getAngleFromY(distanceRadius, target, radius + pad)
+    if(temp.length == 2){
+      let arrTemp = Array.from(range(Math.min(temp[0], temp[1]), Math.max(temp[0], temp[1])))
+      allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
+    }
 
-  temp = getAngleFromY(distanceRadius, target, window.innerHeight - (radius + pad))
-  if(temp.length == 2){
-    let arrTemp = Array.from(range(Math.min(temp[0], temp[1]), Math.max(temp[0], temp[1])))
-    allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
-  }
+    temp = getAngleFromY(distanceRadius, target, window.innerHeight - (radius + pad))
+    if(temp.length == 2){
+      let arrTemp = Array.from(range(Math.min(temp[0], temp[1]), Math.max(temp[0], temp[1])))
+      allowedRange = allowedRange.filter(x => !arrTemp.includes(x) )
+    }
 
-  let t = allowedRange[randInt([0, allowedRange.length])];
+    let t = allowedRange[randInt([0, allowedRange.length])];
 
-  next = getPointOnCircumference(t,target, distanceRadius)
+    next = getPointOnCircumference(t,target, distanceRadius)
     limiter++;
     if(limiter > 36){ 
       console.log("Posn From Target Not found")
@@ -219,7 +219,7 @@ function tooClose(center, point, radius){
 
 function checkInside(x,y, radius, pad){
   if(x + radius + pad < window.innerWidth && x - radius - pad > 0){
-    if(y + radius + pad< window.innerHeight && y - radius - pad> 0){
+    if(y + radius + pad < window.innerHeight && y - radius - pad> 0){
       return true;
     }
   }  
@@ -276,6 +276,7 @@ export default function Home() {
     setTouch([event.changedTouches[0].clientX,event.changedTouches[0].clientY])
   }
 
+
   function init(){
     setStatus('go')
     setEndButtonsShow(false)
@@ -284,6 +285,8 @@ export default function Home() {
     
     canvasWidth = window.innerWidth - 2 * (CONST.size1+ CONST.size2);
     canvasHeight = window.innerHeight - 2 * (CONST.size1+ CONST.size2);
+    console.log("Inner width",window.innerWidth)
+    console.log("Inner height",window.innerHeight)
     console.log("Canvas inner width",canvasWidth)
     console.log("Canvas inner height",canvasHeight)
     let next = nextPos(target,radius,pad, canvasWidth, canvasHeight)
@@ -355,6 +358,12 @@ export default function Home() {
 
   useEffect(async()=>{
     if(status!=='go')return;
+    canvasWidth = window.innerWidth - 2 * (CONST.size1+ CONST.size2);
+    canvasHeight = window.innerHeight - 2 * (CONST.size1+ CONST.size2);
+    console.log("Inner width",window.innerWidth)
+    console.log("Inner height",window.innerHeight)
+    console.log("Canvas inner width",canvasWidth)
+    console.log("Canvas inner height",canvasHeight)
     try {
       if(mode === 'FC'){
         if(document.getElementById("target1").style.display === 'none') return;
@@ -521,7 +530,7 @@ export default function Home() {
         <meta name="apple-mobile-web-app-capable" content="yes"/>
       </Head>
       
-      <div id="touch-bound" className="board" onTouchStart={(e)=>{handleTouchEnd(e)}}>
+      <div id="touch-bound" className="board" onTouchStart={(e)=>{handleTouchEnd(e)}} >
         <div className="menuItemContainer front-page"> 
           {(status==='frontPage') ? <div className="startBtn wider" onClick={() => {setStatus("wait3");}}>screen callibration</div>:''}
           {(status==='frontPage') ? <div className="startBtn wider" onClick={() => {setMode("MT"); setStatus("wait1");}}>main task</div>:''}
