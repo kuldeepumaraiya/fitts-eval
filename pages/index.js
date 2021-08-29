@@ -510,6 +510,8 @@ export default function Home() {
             }
             setTarget(next1)
             setTarget2(next2)
+            console.log("Target 1 : ", next1)
+            console.log("Target 2 : ", next2)
             
             document.getElementById("target2").firstChild.style.backgroundColor = "white";
             document.getElementById("target2").firstChild.style.border = '1px solid black';
