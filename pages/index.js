@@ -181,7 +181,7 @@ function nextPosFromTarget(target,bounds,radius,pad, distanceRadius, mode){
     }
   }
   if(!checkInside(next[0], next[1], radius, pad)) return [-1, -1];
-
+  console.log("Target Value 2 : ", next)
   return next
 }
 
@@ -322,10 +322,10 @@ export default function Home() {
           }
         }
   
-        console.log("Target 1 : ", next)
-        console.log("Target 2 : ", next2)
         setTarget(next)
         setTarget2(next2)
+        console.log("Target 1 : ", next)
+        console.log("Target 2 : ", next2)
       }else{
         setTarget(next)
         startSound.play()
