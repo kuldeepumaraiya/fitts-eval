@@ -282,43 +282,56 @@ export default function Home() {
     setEndButtonsShow(false)
     setTime(Date.now())
     setPrevTime(Date.now())
-    
-    canvasWidth = window.innerWidth - 2 * (CONST.size1+ CONST.size2);
-    canvasHeight = window.innerHeight - 2 * (CONST.size1+ CONST.size2);
-    console.log("Inner width",window.innerWidth)
-    console.log("Inner height",window.innerHeight)
-    console.log("Canvas inner width",canvasWidth)
-    console.log("Canvas inner height",canvasHeight)
-    let next = nextPos(target,radius,pad, canvasWidth, canvasHeight)
-    if(mode === "MT"){
-      let next2 = nextPosFromTarget(next,bounds,radius,pad, distanceRadius, mode)
-      let limit = 0;
-      while(next2[0] == -1){
-        let side = randInt([0,10])
-        if(side > 5){
-          next[1] = randFloat([pad + radius, pad + radius + distanceRadius])
-        }else{
-          next[1] = randFloat([(2*canvasHeight/3) + pad, canvasHeight + pad-radius])
-        }
-        if(next[1] < pad+radius){
-          next[1] = randFloat([pad+radius, pad+radius+distanceRadius])
-        } 
-        next2 = nextPosFromTarget(next,bounds,radius,pad, distanceRadius, mode)
-        limit++;
-        if(limit > 50){
-          console.log("Limit Reached, no 2 points were found.")
-          break;
-        }
-      }
+    // -----------------------------------------------------------------------------------------
+    document.getElementsByClassName("canvas")[0].style.backgroundColor = "#c8c8c8";
+    document.getElementById("canvasText").innerText = "Loading...";
+    // -----------------------------------------------------------------------------------------
 
-      console.log("Target 1 : ", next)
-      console.log("Target 2 : ", next2)
-      setTarget(next)
-      setTarget2(next2)
-    }else{
-      setTarget(next)
-      startSound.play()
-    }
+    setTimeout(()=>{
+
+    // -----------------------------------------------------------------------------------------
+      document.getElementsByClassName("canvas")[0].style.backgroundColor = "white";
+      document.getElementById("canvasText").innerText = "";
+    // -----------------------------------------------------------------------------------------
+
+      canvasWidth = window.innerWidth - 2 * (CONST.size1+ CONST.size2);
+      canvasHeight = window.innerHeight - 2 * (CONST.size1+ CONST.size2);
+      console.log("Inner width",window.innerWidth)
+      console.log("Inner height",window.innerHeight)
+      console.log("Canvas inner width",canvasWidth)
+      console.log("Canvas inner height",canvasHeight)
+      let next = nextPos(target,radius,pad, canvasWidth, canvasHeight)
+      if(mode === "MT"){
+        let next2 = nextPosFromTarget(next,bounds,radius,pad, distanceRadius, mode)
+        let limit = 0;
+        while(next2[0] == -1){
+          let side = randInt([0,10])
+          if(side > 5){
+            next[1] = randFloat([pad + radius, pad + radius + distanceRadius])
+          }else{
+            next[1] = randFloat([(2*canvasHeight/3) + pad, canvasHeight + pad-radius])
+          }
+          if(next[1] < pad+radius){
+            next[1] = randFloat([pad+radius, pad+radius+distanceRadius])
+          } 
+          next2 = nextPosFromTarget(next,bounds,radius,pad, distanceRadius, mode)
+          limit++;
+          if(limit > 50){
+            console.log("Limit Reached, no 2 points were found.")
+            break;
+          }
+        }
+  
+        console.log("Target 1 : ", next)
+        console.log("Target 2 : ", next2)
+        setTarget(next)
+        setTarget2(next2)
+      }else{
+        setTarget(next)
+        startSound.play()
+      }
+    }, 2000)
+    
   }
 
   useEffect(()=>{
@@ -621,6 +634,7 @@ export default function Home() {
           <pre className="log-box">
             {JSON.stringify(log.map(x=>[x.round,x.dist,x.e_time-x.s_time]),null,1)}
           </pre>
+          <h1 id="canvasText"></h1>
         </div>
          
          }

@@ -162,3 +162,8 @@ html {
   height: 100px;
   background-color: black;
 }
+#canvasText {
+  position: fixed;
+  left: 40%;
+  top: 45%;
+}
